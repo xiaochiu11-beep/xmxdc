@@ -1,0 +1,5 @@
+{
+  "name": "小萌星单词本 (Cute Word Star)",
+  "description": "一个专为小朋友设计的活泼可爱的单词背诵软件，包含单元学习、音标、例句及复习功能。",
+  "requestFramePermissions": ["camera"]
+}
