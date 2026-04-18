@@ -7,13 +7,13 @@
 
 @layer base {
   body {
-    @apply bg-pink-50 text-gray-800 antialiased overflow-x-hidden;
+    @apply bg-[#FAF7F2] text-gray-800 antialiased overflow-x-hidden;
   }
 }
 
 @layer components {
   .cute-card {
-    @apply bg-white rounded-3xl shadow-xl border-4 border-white transition-all duration-300;
+    @apply bg-white rounded-3xl shadow-xl border-4 border-[#F5EBE0] transition-all duration-300;
   }
   
   .cute-button {
@@ -31,6 +31,6 @@
 }
 
 .bg-pattern {
-  background-image: radial-gradient(#fbcfe8 1px, transparent 1px);
+  background-image: radial-gradient(#E6CCB2 1px, transparent 1px);
   background-size: 20px 20px;
 }
