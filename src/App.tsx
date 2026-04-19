@@ -140,13 +140,27 @@ export default function App() {
   // Background Music Control
   useEffect(() => {
     if (audioRef.current) {
-      if (isMusicPlaying) {
-        audioRef.current.play().catch(e => console.log("Audio play blocked:", e));
+      audioRef.current.volume = 0.3; // Set a reasonable default volume
+    }
+  }, []);
+
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (!isMusicPlaying) {
+        audioRef.current.volume = 0.3;
+        audioRef.current.play().catch(e => {
+          console.error("Audio play blocked or failed:", e);
+          // Fallback: try playing after a short delay
+          setTimeout(() => {
+            audioRef.current?.play().catch(err => console.error("Still blocked:", err));
+          }, 100);
+        });
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isMusicPlaying]);
+    setIsMusicPlaying(!isMusicPlaying);
+  };
 
   // Sync exercise type for mistakes
   useEffect(() => {
@@ -646,6 +660,7 @@ export default function App() {
         ref={audioRef}
         src="https://assets.mixkit.co/music/preview/mixkit-funny-paws-507.mp3"
         loop
+        preload="auto"
       />
 
       {/* Header with Stats */}
@@ -667,7 +682,7 @@ export default function App() {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setIsMusicPlaying(!isMusicPlaying)}
+            onClick={toggleMusic}
             className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold shadow-md transition-all border-2 ${
               isMusicPlaying ? 'bg-yellow-50 border-yellow-200 text-yellow-600' : 'bg-gray-50 border-gray-200 text-gray-400'
             }`}
