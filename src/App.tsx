@@ -48,14 +48,15 @@ const MISTAKE_ENCOURAGEMENTS = [
 ];
 
 const ADVENTURE_POSITIONS = [
-  { left: '15%', bottom: '15%' },
-  { left: '40%', bottom: '25%' },
-  { left: '65%', bottom: '35%' },
-  { left: '55%', bottom: '60%' },
-  { left: '30%', bottom: '75%' },
-  { left: '70%', bottom: '80%' },
-  { left: '85%', bottom: '55%' },
-  { left: '10%', bottom: '45%' },
+  { left: '20%', bottom: '10%' },
+  { left: '60%', bottom: '20%' },
+  { left: '30%', bottom: '30%' },
+  { left: '70%', bottom: '40%' },
+  { left: '25%', bottom: '50%' },
+  { left: '65%', bottom: '65%' },
+  { left: '35%', bottom: '78%' },
+  { left: '75%', bottom: '88%' },
+  { left: '45%', bottom: '96%' }, // New position for Extension Node
 ];
 
 const PET_MESSAGES = [
@@ -109,15 +110,16 @@ export default function App() {
   const mapPath = useMemo(() => {
     const points = wordData.map((_, i) => {
       const pos = ADVENTURE_POSITIONS[i % ADVENTURE_POSITIONS.length];
-      const x = parseFloat(pos.left) * 8; // 800 / 100
-      const y = 600 - (parseFloat(pos.bottom) * 6); // 600 / 100
+      const x = parseFloat(pos.left) * 4.5; // 450 / 100
+      const y = 800 - (parseFloat(pos.bottom) * 8); // 800 / 100
       return { x, y };
     });
     
-    // Add extension node at the end
+    // Add extension node at the end (Magical Gate)
+    const extPos = ADVENTURE_POSITIONS[8];
     points.push({
-      x: 85 * 8,
-      y: 600 - (85 * 6)
+      x: parseFloat(extPos.left) * 4.5,
+      y: 800 - (parseFloat(extPos.bottom) * 8)
     });
 
     if (points.length < 2) return "";
@@ -654,7 +656,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-pattern flex flex-col items-center p-4 md:p-8">
+    <div className="min-h-screen bg-pattern flex flex-col items-center p-4 sm:p-6">
       {/* Background Music Element */}
       <audio 
         ref={audioRef}
@@ -664,56 +666,50 @@ export default function App() {
       />
 
       {/* Header with Stats */}
-      <header className="w-full max-w-4xl flex justify-between items-center mb-8">
+      <header className="w-full max-w-[480px] flex justify-between items-center mb-6 px-1">
         <motion.div 
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           className="flex items-center gap-2 cursor-pointer"
           onClick={goHome}
         >
-          <div className="bg-[#D4A373] p-2 rounded-2xl shadow-lg">
-            <Star className="text-white fill-white" size={28} />
+          <div className="bg-[#D4A373] p-1 rounded-lg sm:p-1.5 sm:rounded-xl shadow-lg">
+            <Star className="text-white fill-white" size={20} sm:size={24} />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#A98467] tracking-tight">奶油单词本</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-[#A98467] tracking-tight">奶油单词</h1>
         </motion.div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Music Toggle */}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={toggleMusic}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold shadow-md transition-all border-2 ${
+            className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-bold shadow-md transition-all border-2 ${
               isMusicPlaying ? 'bg-yellow-50 border-yellow-200 text-yellow-600' : 'bg-gray-50 border-gray-200 text-gray-400'
             }`}
           >
-            <Music size={20} className={isMusicPlaying ? 'animate-bounce' : ''} />
-            <span className="text-sm hidden sm:inline">{isMusicPlaying ? '音乐开' : '音乐关'}</span>
+            <Music size={14} sm:size={16} className={isMusicPlaying ? 'animate-bounce' : ''} />
+            <span className="text-[9px] sm:text-[10px] hidden xs:inline">{isMusicPlaying ? 'ON' : 'OFF'}</span>
           </motion.button>
 
           <motion.div 
             animate={{ scale: points > 0 ? [1, 1.2, 1] : 1 }}
-            className="bg-white px-4 py-2 rounded-full shadow-md flex items-center gap-2 border-2 border-[#F5EBE0]"
+            className="bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-md flex items-center gap-1 sm:gap-1.5 border-2 border-[#F5EBE0]"
           >
-            <Sparkles className="text-yellow-500" size={20} />
-            <span className="font-bold text-[#A98467]">{points} 分</span>
+            <Sparkles className="text-yellow-500" size={14} sm:size={16} />
+            <span className="font-bold text-[#A98467] text-xs sm:text-sm">{points}</span>
           </motion.div>
-          <motion.div 
-            animate={{ scale: stars > 0 ? [1, 1.2, 1] : 1 }}
-            className="bg-white px-4 py-2 rounded-full shadow-md flex items-center gap-2 border-2 border-yellow-200"
-          >
-            <Star className="text-yellow-400 fill-yellow-400" size={20} />
-            <span className="font-bold text-yellow-600">{stars}</span>
-          </motion.div>
+          
           {mode !== 'home' && (
-            <button onClick={goHome} className="p-2 bg-white rounded-full shadow-md text-gray-400 hover:text-[#D4A373] transition-colors">
-              <HomeIcon size={24} />
+            <button onClick={goHome} className="p-1 sm:p-1.5 bg-white rounded-full shadow-md text-gray-400 hover:text-[#D4A373] transition-colors">
+              <HomeIcon size={18} sm:size={20} />
             </button>
           )}
         </div>
       </header>
 
-      <main className="w-full max-w-4xl flex-1 flex flex-col items-center justify-center relative">
+      <main className="w-full max-w-[480px] flex-1 flex flex-col items-center justify-center relative">
         {/* Feedback Overlay */}
         <AnimatePresence>
           {showFeedback && (
@@ -723,24 +719,24 @@ export default function App() {
               exit={{ scale: 0, opacity: 0 }}
               className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-none"
             >
-              <div className={`p-8 rounded-full ${showFeedback === 'correct' ? 'bg-green-500' : 'bg-red-500'} shadow-2xl mb-4`}>
-                {showFeedback === 'correct' ? <CheckCircle2 size={80} className="text-white" /> : <XCircle size={80} className="text-white" />}
+              <div className={`p-6 sm:p-8 rounded-full ${showFeedback === 'correct' ? 'bg-green-500' : 'bg-red-500'} shadow-2xl mb-4`}>
+                {showFeedback === 'correct' ? <CheckCircle2 size={60} sm:size={80} className="text-white" /> : <XCircle size={60} sm:size={80} className="text-white" />}
               </div>
               
               <motion.div 
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className={`text-3xl font-bold text-center bg-white px-8 py-4 rounded-[30px] shadow-xl border-4 ${
+                className={`text-2xl sm:text-3xl font-bold text-center bg-white px-6 sm:px-8 py-3 sm:py-4 rounded-[30px] shadow-xl border-4 ${
                   showFeedback === 'correct' ? 'text-green-600 border-green-100' : 'text-red-600 border-red-100'
                 }`}
               >
                 {showFeedback === 'correct' ? (
                   encouragement
                 ) : (
-                  <div className="flex flex-col gap-2">
-                    <p className="text-xl text-gray-400">正确答案是：</p>
-                    <p className="text-4xl font-black text-red-500 mb-2">{correctWordHint}</p>
-                    <p className="text-lg text-red-400">{encouragement}</p>
+                  <div className="flex flex-col gap-1 sm:gap-2">
+                    <p className="text-lg sm:text-xl text-gray-400">正确答案是：</p>
+                    <p className="text-3xl sm:text-4xl font-black text-red-500 mb-1 sm:mb-2">{correctWordHint}</p>
+                    <p className="text-base sm:text-lg text-red-400">{encouragement}</p>
                   </div>
                 )}
               </motion.div>
@@ -755,30 +751,29 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full relative min-h-[600px] bg-gradient-to-b from-emerald-900 via-green-800 to-emerald-950 rounded-[50px] border-8 border-emerald-100 shadow-2xl overflow-hidden p-8"
+              className="w-full relative min-h-[800px] bg-gradient-to-b from-emerald-900 via-green-800 to-emerald-950 rounded-[50px] border-8 border-emerald-100 shadow-2xl overflow-hidden p-6"
             >
               {/* Magic Forest Background Elements */}
               <div className="absolute inset-0 pointer-events-none">
                 {/* Magical Glows */}
-                <div className="absolute top-10 left-10 w-64 h-64 bg-emerald-400/20 rounded-full blur-[100px]" />
-                <div className="absolute bottom-20 right-20 w-80 h-80 bg-lime-300/20 rounded-full blur-[100px]" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px]" />
+                <div className="absolute top-10 left-10 w-48 h-48 bg-emerald-400/20 rounded-full blur-[80px]" />
+                <div className="absolute bottom-20 right-20 w-64 h-64 bg-lime-300/20 rounded-full blur-[80px]" />
                 
                 {/* Floating Particles */}
-                {[...Array(20)].map((_, i) => (
+                {[...Array(15)].map((_, i) => (
                   <motion.div
                     key={i}
                     className="absolute w-1 h-1 bg-yellow-200 rounded-full"
                     animate={{
                       y: [0, -100, 0],
-                      x: [0, Math.random() * 50 - 25, 0],
+                      x: [0, Math.random() * 40 - 20, 0],
                       opacity: [0, 0.8, 0],
-                      scale: [0, 1.5, 0]
+                      scale: [0, 1.2, 0]
                     }}
                     transition={{
-                      duration: 5 + Math.random() * 5,
+                      duration: 4 + Math.random() * 4,
                       repeat: Infinity,
-                      delay: Math.random() * 5
+                      delay: Math.random() * 4
                     }}
                     style={{
                       left: `${Math.random() * 100}%`,
@@ -790,21 +785,21 @@ export default function App() {
                 {/* Tree Silhouettes */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-emerald-950 to-transparent opacity-60" />
                 <div className="absolute -bottom-10 -left-10 text-emerald-700/30 rotate-12">
-                  <Trees size={300} />
+                  <Trees size={200} />
                 </div>
                 <div className="absolute -bottom-20 -right-10 text-emerald-700/30 -rotate-12">
-                  <Trees size={400} />
+                  <Trees size={250} />
                 </div>
               </div>
 
               {/* Map Path Decoration */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 450 800">
                 <motion.path
                   d={mapPath}
                   fill="none"
                   stroke="rgba(255, 255, 255, 0.3)"
-                  strokeWidth="8"
-                  strokeDasharray="15 15"
+                  strokeWidth="6"
+                  strokeDasharray="12 12"
                   strokeLinecap="round"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
@@ -815,19 +810,19 @@ export default function App() {
                   d={mapPath}
                   fill="none"
                   stroke="rgba(110, 231, 183, 0.4)"
-                  strokeWidth="12"
+                  strokeWidth="10"
                   className="blur-md"
                 />
               </svg>
 
               <div className="relative z-10 flex flex-col items-center">
-                <div className="text-center mb-12">
-                  <h2 className="text-4xl font-black text-emerald-50 mb-2 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">魔法森林单词大冒险</h2>
-                  <p className="text-emerald-300 font-bold drop-shadow-sm">在神秘森林中寻找失落的单词吧！</p>
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-black text-emerald-50 mb-1 drop-shadow-md">魔法森林单词</h2>
+                  <p className="text-emerald-300 text-sm font-bold opacity-80">寻找失落的单词吧！</p>
                 </div>
 
                 {/* Adventure Nodes */}
-                <div className="relative w-full h-[450px]">
+                <div className="relative w-full h-[650px]">
                   {wordData.map((unit, index) => {
                     const pos = ADVENTURE_POSITIONS[index % ADVENTURE_POSITIONS.length];
 
@@ -845,7 +840,7 @@ export default function App() {
                             whileHover={{ scale: 1.2, rotate: 5 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleSelectUnit(unit, 'learning', pos)}
-                            className="w-20 h-20 bg-white rounded-3xl shadow-xl border-4 border-[#E6CCB2] flex items-center justify-center text-2xl font-black text-[#A98467] z-20 relative"
+                            className="w-14 h-14 bg-white rounded-2xl shadow-xl border-4 border-[#E6CCB2] flex items-center justify-center text-xl font-black text-[#A98467] z-20 relative"
                           >
                             {index + 1}
                           </motion.button>
@@ -855,21 +850,21 @@ export default function App() {
                             {unit.title}
                           </div>
 
-                          {/* Mode Selection Mini-Menu */}
-                          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100">
+                          {/* Mode Selection Mini-Menu - Always Visible */}
+                          <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-30">
                             <button 
                               onClick={(e) => { e.stopPropagation(); handleSelectUnit(unit, 'learning', pos); }}
-                              className="bg-blue-400 p-2 rounded-full text-white shadow-md hover:bg-blue-500"
+                              className="bg-blue-400 p-1.5 rounded-xl text-white shadow-lg hover:bg-blue-500 hover:scale-110 transition-all border-2 border-white"
                               title="学习"
                             >
-                              <BookOpen size={16} />
+                              <BookOpen size={14} />
                             </button>
                             <button 
                               onClick={(e) => { e.stopPropagation(); handleSelectUnit(unit, 'review-select', pos); }}
-                              className="bg-purple-400 p-2 rounded-full text-white shadow-md hover:bg-purple-500"
+                              className="bg-purple-400 p-1.5 rounded-xl text-white shadow-lg hover:bg-purple-500 hover:scale-110 transition-all border-2 border-white"
                               title="挑战"
                             >
-                              <Gamepad2 size={16} />
+                              <Gamepad2 size={14} />
                             </button>
                           </div>
                         </div>
@@ -879,7 +874,7 @@ export default function App() {
 
                   {/* Extension Node */}
                   <motion.div
-                    style={{ left: '85%', bottom: '85%' }}
+                    style={{ left: ADVENTURE_POSITIONS[8].left, bottom: ADVENTURE_POSITIONS[8].bottom }}
                     className="absolute group"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -890,12 +885,12 @@ export default function App() {
                         whileHover={{ scale: 1.2, rotate: -5 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => {
-                          setPetPosition({ left: '85%', bottom: '85%' });
+                          setPetPosition(ADVENTURE_POSITIONS[8]);
                           setTimeout(() => setMode('extension'), 300);
                         }}
-                        className="w-24 h-24 bg-gradient-to-br from-[#FFF9F0] to-[#F5EBE0] rounded-full shadow-2xl border-4 border-[#E6CCB2] flex items-center justify-center text-[#A98467] z-20 relative"
+                        className="w-14 h-14 bg-gradient-to-br from-[#FFF9F0] to-[#F5EBE0] rounded-2xl shadow-xl border-4 border-[#E6CCB2] flex items-center justify-center text-[#A98467] z-20 relative"
                       >
-                        <Sparkles size={40} className="animate-pulse" />
+                        <Sparkles size={24} className="animate-pulse" />
                       </motion.button>
                       
                       {/* Tooltip */}
@@ -938,7 +933,7 @@ export default function App() {
                       </AnimatePresence>
                       
                       {/* Cute Pet (Emoji-based for consistency) */}
-                      <div className="w-24 h-24 bg-white rounded-full border-4 border-[#F5EBE0] shadow-xl flex items-center justify-center text-6xl">
+                      <div className="w-14 h-14 bg-white rounded-full border-4 border-[#F5EBE0] shadow-xl flex items-center justify-center text-3xl">
                         🐶
                       </div>
                       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/10 rounded-full blur-sm" />
@@ -1008,19 +1003,19 @@ export default function App() {
                 </span>
               </div>
 
-              <div className="cute-card w-full p-8 md:p-12 flex flex-col md:flex-row items-center gap-12 bg-white/80 backdrop-blur-sm">
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-4 mb-4">
-                    <h2 className="text-6xl font-black text-gray-800 tracking-tight">
+              <div className="cute-card w-full p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-8 bg-white/80 backdrop-blur-sm">
+                <div className="w-full text-center">
+                  <div className="flex flex-col items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <h2 className="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight break-words max-w-full">
                       {selectedUnit.words[currentWordIndex].word}
                     </h2>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                       <button 
                         onClick={() => speak(selectedUnit.words[currentWordIndex].word)}
-                        className="p-3 bg-yellow-100 text-yellow-600 rounded-2xl hover:bg-yellow-200 transition-colors shadow-sm"
+                        className="p-2 sm:p-3 bg-yellow-100 text-yellow-600 rounded-xl sm:rounded-2xl hover:bg-yellow-200 transition-colors shadow-sm"
                         title="标准英音朗读"
                       >
-                        <Volume2 size={32} />
+                        <Volume2 size={24} sm:size={32} />
                       </button>
                       <div className="relative group">
                         <button 
@@ -1029,41 +1024,36 @@ export default function App() {
                           onMouseLeave={stopRecording}
                           onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
                           onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-                          className={`p-3 rounded-2xl transition-all shadow-sm flex items-center gap-2 select-none touch-none ${
+                          className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-all shadow-sm flex items-center gap-2 select-none touch-none ${
                             isRecording ? 'bg-red-500 text-white scale-110' : 
                             isMicLoading ? 'bg-yellow-400 text-white scale-105' :
                             'bg-[#FFF9F0] text-[#A98467] hover:bg-[#F5EBE0]'
                           }`}
                           title={isMicLoading ? "正在载入..." : "长按录音"}
                         >
-                          {isMicLoading ? <Loader2 size={32} className="animate-spin" /> : <Mic size={32} />}
-                          {isRecording && <span className="text-sm font-bold animate-pulse">录制中...</span>}
-                          {isMicLoading && <span className="text-sm font-bold animate-pulse">调取中...</span>}
+                          {isMicLoading ? <Loader2 size={24} sm:size={32} className="animate-spin" /> : <Mic size={24} sm:size={32} />}
+                          {isRecording && <span className="text-xs sm:text-sm font-bold animate-pulse">录制中...</span>}
+                          {isMicLoading && <span className="text-xs sm:text-sm font-bold animate-pulse">调取中...</span>}
                         </button>
-                        {!isRecording && !recordedUrl && (
-                          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            长按录音
-                          </div>
-                        )}
                       </div>
                       {recordedUrl && (
                         <button 
                           onClick={playRecordedAudio}
-                          className="p-3 bg-green-100 text-green-600 rounded-2xl hover:bg-green-200 transition-colors shadow-sm flex items-center gap-2"
+                          className="p-2 sm:p-3 bg-green-100 text-green-600 rounded-xl sm:rounded-2xl hover:bg-green-200 transition-colors shadow-sm flex items-center gap-2"
                           title="播放我的录音"
                         >
-                          <Play size={32} />
-                          <span className="text-sm font-bold">听听我的</span>
+                          <Play size={24} sm:size={32} />
+                          <span className="text-xs sm:text-sm font-bold">听听我的</span>
                         </button>
                       )}
                     </div>
                   </div>
-                  <p className="text-2xl text-blue-500 font-bold mb-6">
+                  <p className="text-xl sm:text-2xl text-blue-500 font-bold mb-4 sm:mb-6">
                     {selectedUnit.words[currentWordIndex].ipa}
                   </p>
-                  <div className="flex flex-col items-center md:items-start gap-4">
-                    <div className="bg-[#FFF9F0] p-6 rounded-3xl border-2 border-[#F5EBE0] inline-block">
-                      <h3 className="text-3xl font-bold text-[#A98467]">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="bg-[#FFF9F0] p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-[#F5EBE0] inline-block">
+                      <h3 className="text-xl sm:text-2xl font-bold text-[#A98467]">
                         {selectedUnit.words[currentWordIndex].meaning}
                       </h3>
                     </div>
@@ -1109,26 +1099,26 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex-1 w-full bg-blue-50 p-8 rounded-[40px] border-4 border-white shadow-inner">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-blue-200 text-blue-700 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider">Example</span>
+                <div className="w-full bg-blue-50 p-6 rounded-[30px] border-4 border-white shadow-inner">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <span className="bg-blue-200 text-blue-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">Example</span>
                     <button 
                       onClick={() => speak(selectedUnit.words[currentWordIndex].sentence)}
                       className="text-blue-400 hover:text-blue-600 transition-colors"
                     >
-                      <Volume2 size={24} />
+                      <Volume2 size={20} />
                     </button>
                   </div>
-                  <p className="text-2xl font-bold text-gray-700 leading-relaxed mb-4 italic">
+                  <p className="text-xl font-bold text-gray-700 leading-relaxed mb-3 italic text-center">
                     "{selectedUnit.words[currentWordIndex].sentence}"
                   </p>
-                  <p className="text-xl text-gray-500 font-medium">
+                  <p className="text-lg text-gray-500 font-medium text-center">
                     {selectedUnit.words[currentWordIndex].translation}
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-8 mt-12">
+              <div className="flex gap-4 mt-8">
                 <button 
                   onClick={prevWord}
                   disabled={currentWordIndex === 0}
@@ -1172,7 +1162,7 @@ export default function App() {
                 <p className="text-gray-500 font-bold">请选择你想要练习的模块：</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+              <div className="grid grid-cols-1 gap-4 w-full px-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -1297,21 +1287,21 @@ export default function App() {
 
               {currentExerciseType === 'choice' && (
                 <div className="w-full">
-                  <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-500 mb-4">请选择正确的中文意思：</h2>
-                    <div className="text-7xl font-black text-pink-500 mb-4 tracking-tight">{currentReviewWord.word}</div>
+                  <div className="text-center mb-8 px-2">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-500 mb-4">请选择正确的中文意思：</h2>
+                    <div className="text-5xl sm:text-7xl font-black text-pink-500 mb-4 tracking-tight break-words">{currentReviewWord.word}</div>
                     <button onClick={() => speak(currentReviewWord.word)} className="text-pink-300 hover:text-pink-500 transition-colors">
-                      <Volume2 size={32} />
+                      <Volume2 size={24} sm:size={32} />
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-3 sm:gap-4 px-2 sm:px-4 w-full">
                     {reviewOptions.map((option, idx) => (
                       <motion.button
                         key={`${option.id}-${idx}`}
                         whileHover={{ scale: 1.03, y: -5 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => handleReviewAnswer(option.id)}
-                        className="cute-card p-8 text-2xl font-bold text-gray-700 hover:bg-pink-50 hover:border-pink-300 text-center shadow-lg"
+                        className="cute-card p-4 sm:p-8 text-xl sm:text-2xl font-bold text-gray-700 hover:bg-pink-50 hover:border-pink-300 text-center shadow-lg"
                       >
                         {option.meaning}
                       </motion.button>
@@ -1323,13 +1313,13 @@ export default function App() {
               {currentExerciseType === 'fill' && (
                 <div className="w-full text-center">
                   <h2 className="text-3xl font-bold text-gray-500 mb-8">根据例句选择缺失的单词：</h2>
-                  <div className="bg-white p-10 rounded-[40px] shadow-xl border-4 border-blue-100 mb-12">
-                    <p className="text-4xl font-bold text-gray-700 leading-relaxed italic">
+                  <div className="bg-white p-6 rounded-[30px] shadow-xl border-4 border-blue-100 mb-8 mx-4">
+                    <p className="text-2xl font-bold text-gray-700 leading-relaxed italic">
                       "{currentReviewWord.sentence.replace(new RegExp(currentReviewWord.word, 'gi'), '_______')}"
                     </p>
-                    <p className="text-2xl text-gray-400 mt-6">{currentReviewWord.translation}</p>
+                    <p className="text-xl text-gray-400 mt-4">{currentReviewWord.translation}</p>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 gap-3 px-4">
                     {reviewOptions.map((option, idx) => (
                       <motion.button
                         key={`${option.id}-${idx}`}
@@ -1346,15 +1336,15 @@ export default function App() {
               )}
 
               {currentExerciseType === 'spelling' && (
-                <div className="w-full text-center">
-                  <h2 className="text-3xl font-bold text-gray-500 mb-8">拼写出这个单词：</h2>
-                  <div className="bg-white p-10 rounded-[40px] shadow-xl border-4 border-yellow-100 mb-12">
-                    <div className="text-5xl font-black text-yellow-600 mb-4">{currentReviewWord.meaning}</div>
-                    <button onClick={() => speak(currentReviewWord.word)} className="bg-yellow-100 p-4 rounded-full text-yellow-600 hover:bg-yellow-200 transition-colors">
-                      <Volume2 size={40} />
+                <div className="w-full text-center px-2">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-500 mb-6 sm:mb-8">拼写出这个单词：</h2>
+                  <div className="bg-white p-4 sm:p-6 rounded-[25px] sm:rounded-[30px] shadow-xl border-4 border-yellow-100 mb-6 sm:mb-8 mx-2 sm:mx-4">
+                    <div className="text-3xl sm:text-4xl font-black text-yellow-600 mb-2">{currentReviewWord.meaning}</div>
+                    <button onClick={() => speak(currentReviewWord.word)} className="bg-yellow-100 p-2 sm:p-3 rounded-full text-yellow-600 hover:bg-yellow-200 transition-colors">
+                      <Volume2 size={24} sm:size={32} />
                     </button>
                   </div>
-                  <div className="flex flex-col items-center gap-6">
+                  <div className="flex flex-col items-center gap-4 sm:gap-6">
                     <input 
                       type="text"
                       value={spellingInput}
@@ -1362,11 +1352,11 @@ export default function App() {
                       onKeyDown={(e) => e.key === 'Enter' && checkSpelling()}
                       placeholder="在这里输入单词..."
                       autoFocus
-                      className="w-full max-w-md text-4xl font-bold text-center p-6 rounded-3xl border-4 border-pink-200 focus:border-pink-400 outline-none shadow-inner bg-pink-50/30"
+                      className="w-full max-w-md text-3xl sm:text-4xl font-bold text-center p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-4 border-pink-200 focus:border-pink-400 outline-none shadow-inner bg-pink-50/30"
                     />
                     <button 
                       onClick={checkSpelling}
-                      className="cute-button bg-pink-400 hover:bg-pink-500 text-2xl px-12 py-4"
+                      className="cute-button bg-pink-400 hover:bg-pink-500 text-xl sm:text-2xl px-10 sm:px-12 py-3 sm:py-4"
                     >
                       检查答案
                     </button>
@@ -1375,73 +1365,70 @@ export default function App() {
               )}
 
               {currentExerciseType === 'speaking' && (
-                <div className="w-full text-center">
-                  <h2 className="text-3xl font-bold text-gray-500 mb-8">请大声读出这个单词：</h2>
-                  <div className="bg-white p-10 rounded-[40px] shadow-xl border-4 border-green-100 mb-12">
-                    <div className="text-7xl font-black text-green-600 mb-4 tracking-tight">{currentReviewWord.word}</div>
-                    <div className="text-2xl text-blue-400 font-bold mb-6">{currentReviewWord.ipa}</div>
-                    <div className="flex justify-center gap-4">
-                      <button onClick={() => speak(currentReviewWord.word)} className="bg-green-100 p-4 rounded-full text-green-600 hover:bg-green-200 transition-colors">
-                        <Volume2 size={40} />
+                <div className="w-full text-center px-2">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-500 mb-6 sm:mb-8">请大声读出这个单词：</h2>
+                  <div className="bg-white p-4 sm:p-6 rounded-[25px] sm:rounded-[30px] shadow-xl border-4 border-green-100 mb-6 sm:mb-8 mx-2 sm:mx-4">
+                    <div className="text-4xl sm:text-5xl font-black text-green-600 mb-2 tracking-tight">{currentReviewWord.word}</div>
+                    <div className="text-lg sm:text-xl text-blue-400 font-bold mb-3 sm:mb-4">{currentReviewWord.ipa}</div>
+                    <div className="flex justify-center gap-3">
+                      <button onClick={() => speak(currentReviewWord.word)} className="bg-green-100 p-2 sm:p-3 rounded-full text-green-600 hover:bg-yellow-200 transition-colors">
+                        <Volume2 size={24} sm:size={32} />
                       </button>
                       {recordedUrl && (
                         <button 
                           onClick={playRecordedAudio}
-                          className="bg-blue-100 p-4 rounded-full text-blue-600 hover:bg-blue-200 transition-colors shadow-sm flex items-center gap-2"
+                          className="bg-blue-100 p-2 sm:p-3 rounded-full text-blue-600 hover:bg-blue-200 transition-colors shadow-sm flex items-center gap-2"
                         >
-                          <Play size={40} />
-                          <span className="font-bold">听听我的</span>
+                          <Play size={20} sm:size={24} />
+                          <span className="font-bold text-xs sm:text-sm">听听我的</span>
                         </button>
                       )}
                     </div>
                   </div>
                   
                   <div className="flex flex-col items-center gap-6">
-                    <div className="relative group">
-                      {/* Professional Recorder UI */}
-                      <div className="bg-gray-800 p-10 rounded-[50px] shadow-2xl border-t-4 border-gray-700 relative overflow-hidden">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                        
-                        {/* Recording Waveform Animation */}
-                        {isRecording && (
-                          <div className="flex items-center justify-center gap-1 mb-8 h-12">
-                            {[...Array(8)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                animate={{ height: [10, 40, 10] }}
-                                transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
-                                className="w-2 bg-red-500 rounded-full"
-                              />
-                            ))}
-                          </div>
-                        )}
-
-                        <button 
-                          onMouseDown={startRecording}
-                          onMouseUp={stopRecording}
-                          onMouseLeave={stopRecording}
-                          onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-                          onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-                          className={`w-32 h-32 rounded-full transition-all shadow-xl border-8 flex items-center justify-center select-none touch-none ${
-                            isRecording 
-                              ? 'bg-red-600 border-red-400 scale-105 shadow-[0_0_30px_rgba(220,38,38,0.5)]' 
-                              : isMicLoading
-                              ? 'bg-yellow-500 border-yellow-300 scale-105'
-                              : 'bg-emerald-500 border-emerald-300 hover:bg-emerald-600'
-                          }`}
-                        >
-                          {isMicLoading ? <Loader2 size={64} className="text-white animate-spin" /> : <Mic size={64} className="text-white" />}
-                        </button>
-                        
-                        <div className="mt-6 text-center">
-                          <p className={`font-black tracking-widest uppercase text-sm ${
-                            isRecording ? 'text-red-400 animate-pulse' : 
-                            isMicLoading ? 'text-yellow-400 animate-pulse' :
-                            'text-gray-400'
-                          }`}>
-                            {isRecording ? 'Recording...' : isMicLoading ? 'Initializing...' : 'Hold to Speak'}
-                          </p>
+                    <div className="relative group p-6 sm:p-10 bg-gray-800 rounded-[40px] sm:rounded-[50px] shadow-2xl border-t-4 border-gray-700 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                      
+                      {/* Recording Waveform Animation */}
+                      {isRecording && (
+                        <div className="flex items-center justify-center gap-0.5 sm:gap-1 mb-6 sm:mb-8 h-8 sm:h-12">
+                          {[...Array(8)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              animate={{ height: [8, 30, 8] }}
+                              transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.1 }}
+                              className="w-1.5 sm:w-2 bg-red-500 rounded-full"
+                            />
+                          ))}
                         </div>
+                      )}
+
+                      <button 
+                        onMouseDown={startRecording}
+                        onMouseUp={stopRecording}
+                        onMouseLeave={stopRecording}
+                        onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
+                        onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
+                        className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full transition-all shadow-xl border-4 sm:border-8 flex items-center justify-center select-none touch-none ${
+                          isRecording 
+                            ? 'bg-red-600 border-red-400 scale-105 shadow-[0_0_30px_rgba(220,38,38,0.5)]' 
+                            : isMicLoading
+                            ? 'bg-yellow-500 border-yellow-300 scale-105'
+                            : 'bg-emerald-500 border-emerald-300 hover:bg-emerald-600'
+                        }`}
+                      >
+                        {isMicLoading ? <Loader2 size={48} sm:size={64} className="text-white animate-spin" /> : <Mic size={48} sm:size={64} className="text-white" />}
+                      </button>
+                      
+                      <div className="mt-4 sm:mt-6 text-center">
+                        <p className={`font-black tracking-widest uppercase text-xs sm:text-sm ${
+                          isRecording ? 'text-red-400 animate-pulse' : 
+                          isMicLoading ? 'text-yellow-400 animate-pulse' :
+                          'text-gray-400'
+                        }`}>
+                          {isRecording ? 'Recording...' : isMicLoading ? 'Initializing...' : 'Hold to Speak'}
+                        </p>
                       </div>
 
                       {isRecording && (
@@ -1469,7 +1456,7 @@ export default function App() {
                         )}
                       </AnimatePresence>
                     </div>
-                    
+
                     <AnimatePresence>
                       {(pronunciationFeedback.text || pronunciationFeedback.stars !== undefined) && (
                         <motion.div
@@ -1584,8 +1571,8 @@ export default function App() {
                   <p className="text-gray-500 mt-2">拍照或输入单词，AI 老师为你生成专属关卡！</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <div className="space-y-4">
+                <div className="flex flex-col gap-6 mb-8 w-full">
+                  <div className="space-y-4 w-full">
                     <label className="block text-lg font-bold text-[#A98467] ml-2">方式一：拍照/上传</label>
                     <div className="relative">
                       <input 
@@ -1596,31 +1583,31 @@ export default function App() {
                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                         disabled={isGenerating}
                       />
-                      <div className="cute-card p-8 border-dashed border-4 border-[#E6CCB2] flex flex-col items-center gap-3 hover:bg-[#FFF9F0] transition-colors">
-                        <Camera size={48} className="text-[#D4A373]" />
-                        <span className="font-bold text-[#A98467]">点击拍照或上传</span>
+                      <div className="cute-card p-6 border-dashed border-4 border-[#E6CCB2] flex flex-col items-center gap-3 hover:bg-[#FFF9F0] transition-colors">
+                        <Camera size={32} className="text-[#D4A373]" />
+                        <span className="font-bold text-[#A98467] text-sm">点击拍照或上传</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-4 w-full">
                     <label className="block text-lg font-bold text-[#A98467] ml-2">方式二：手动输入</label>
                     <div className="flex flex-col gap-4">
                       <textarea 
                         value={extensionInput}
                         onChange={(e) => setExtensionInput(e.target.value)}
                         placeholder="输入你想学习的单词，用空格或逗号分隔..."
-                        className="w-full h-[120px] p-4 rounded-2xl border-4 border-[#F5EBE0] focus:border-[#D4A373] outline-none resize-none font-medium text-gray-700 shadow-inner"
+                        className="w-full h-[100px] p-4 rounded-2xl border-4 border-[#F5EBE0] focus:border-[#D4A373] outline-none resize-none font-medium text-gray-700 shadow-inner text-sm"
                         disabled={isGenerating}
                       />
                       <button 
                         onClick={() => generateCustomUnit(extensionInput)}
                         disabled={!extensionInput.trim() || isGenerating}
-                        className={`cute-button flex items-center justify-center gap-2 text-xl ${
+                        className={`cute-button flex items-center justify-center gap-2 text-lg ${
                           !extensionInput.trim() || isGenerating ? 'bg-gray-300' : 'bg-[#D4A373] hover:bg-[#A98467]'
                         }`}
                       >
-                        {isGenerating ? <Loader2 size={24} className="animate-spin" /> : <TypeIcon size={24} />}
+                        {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <TypeIcon size={20} />}
                         开始生成
                       </button>
                     </div>
@@ -1649,17 +1636,17 @@ export default function App() {
               key="learn-result"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="cute-card p-12 text-center max-w-md w-full relative overflow-hidden"
+              className="cute-card p-8 text-center max-w-[400px] w-full relative overflow-hidden mx-4"
             >
               <motion.div 
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="bg-green-100 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
+                className="bg-green-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"
               >
-                <BookOpen size={64} className="text-green-500" />
+                <BookOpen size={48} className="text-green-500" />
               </motion.div>
-              <h2 className="text-4xl font-black text-gray-800 mb-4">学习完成！</h2>
-              <p className="text-xl text-gray-500 mb-10">你已经学完了 {selectedUnit.title} 的所有单词，太棒了！</p>
+              <h2 className="text-3xl font-black text-gray-800 mb-2">学习完成！</h2>
+              <p className="text-lg text-gray-500 mb-8 px-4">你已经学完了 {selectedUnit.title} 的所有单词，太棒了！</p>
               
               <div className="space-y-4 relative z-10">
                 <button 
@@ -1687,21 +1674,21 @@ export default function App() {
               key="result"
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="cute-card p-12 text-center max-w-md w-full relative overflow-hidden"
+              className="cute-card p-8 text-center max-w-[400px] w-full relative overflow-hidden mx-4"
             >
               <motion.div 
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="bg-yellow-100 w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"
+                className="bg-yellow-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"
               >
-                <Trophy size={64} className="text-yellow-500" />
+                <Trophy size={48} className="text-yellow-500" />
               </motion.div>
-              <h2 className="text-4xl font-black text-gray-800 mb-4">挑战大成功！</h2>
-              <div className="space-y-4 mb-10">
-                <p className="text-2xl text-gray-500">
-                  总积分: <span className="text-[#A98467] font-black text-4xl">{points}</span>
+              <h2 className="text-3xl font-black text-gray-800 mb-2">挑战大成功！</h2>
+              <div className="space-y-2 mb-8">
+                <p className="text-xl text-gray-500">
+                  总积分: <span className="text-[#A98467] font-black text-3xl">{points}</span>
                 </p>
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-1">
                   {[...Array(Math.min(stars, 5))].map((_, i) => (
                     <motion.div
                       key={i}
@@ -1709,7 +1696,7 @@ export default function App() {
                       animate={{ scale: 1 }}
                       transition={{ delay: i * 0.1 }}
                     >
-                      <Star size={32} className="text-yellow-400 fill-yellow-400" />
+                      <Star size={24} className="text-yellow-400 fill-yellow-400" />
                     </motion.div>
                   ))}
                 </div>
