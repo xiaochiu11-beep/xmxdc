@@ -99,6 +99,36 @@ export default function App() {
   const [speakingHistory, setSpeakingHistory] = useState<{[key: string]: any}>({});
   
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [voicesLoaded, setVoicesLoaded] = useState(false);
+
+  // Speech Synthesis Unlocker and Voice Loader
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        setVoicesLoaded(true);
+      }
+    };
+    
+    const unlockSpeech = () => {
+      const utterance = new SpeechSynthesisUtterance("");
+      window.speechSynthesis.speak(utterance);
+      console.log("Speech synthesis unlocked");
+      document.removeEventListener('touchstart', unlockSpeech);
+      document.removeEventListener('click', unlockSpeech);
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    document.addEventListener('touchstart', unlockSpeech);
+    document.addEventListener('click', unlockSpeech);
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      document.removeEventListener('touchstart', unlockSpeech);
+      document.removeEventListener('click', unlockSpeech);
+    };
+  }, []);
   const [extensionInput, setExtensionInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [customUnit, setCustomUnit] = useState<Unit | null>(null);
@@ -149,14 +179,22 @@ export default function App() {
   const toggleMusic = () => {
     if (audioRef.current) {
       if (!isMusicPlaying) {
+        audioRef.current.muted = false; // Ensure it's not muted
         audioRef.current.volume = 0.3;
-        audioRef.current.play().catch(e => {
-          console.error("Audio play blocked or failed:", e);
-          // Fallback: try playing after a short delay
-          setTimeout(() => {
-            audioRef.current?.play().catch(err => console.error("Still blocked:", err));
-          }, 100);
-        });
+        
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            console.error("Audio play blocked or failed:", e);
+            // Fallback: wait and try again
+            setTimeout(() => {
+              if (audioRef.current) {
+                audioRef.current.muted = false;
+                audioRef.current.play().catch(err => console.error("Still blocked:", err));
+              }
+            }, 300);
+          });
+        }
       } else {
         audioRef.current.pause();
       }
@@ -321,17 +359,37 @@ export default function App() {
   };
 
   const speak = (text: string) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    if (!text) return;
     
-    const voices = window.speechSynthesis.getVoices();
-    const ukVoice = voices.find(v => v.lang.includes('GB') || v.name.includes('United Kingdom') || v.name.includes('British'));
-    if (ukVoice) utterance.voice = ukVoice;
-    
-    utterance.lang = 'en-GB';
-    utterance.rate = 0.7;
-    utterance.pitch = 1.1;
-    window.speechSynthesis.speak(utterance);
+    // Ensure speech synthesis is not paused
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      const voices = window.speechSynthesis.getVoices();
+      // Look for high-quality British voices first, then any English
+      let voice = voices.find(v => v.lang.includes('en-GB') && v.name.includes('Google'));
+      if (!voice) voice = voices.find(v => v.lang.includes('en-GB'));
+      if (!voice) voice = voices.find(v => v.lang.includes('en') && v.name.includes('Female'));
+      if (!voice) voice = voices.find(v => v.lang.includes('en'));
+
+      if (voice) {
+        utterance.voice = voice;
+      }
+      
+      utterance.lang = 'en-GB';
+      utterance.rate = 0.7; // Standard learning speed
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.error("Speech Synthesis failed:", e);
+    }
   };
 
   const startRecording = async () => {
@@ -663,6 +721,7 @@ export default function App() {
         src="https://assets.mixkit.co/music/preview/mixkit-funny-paws-507.mp3"
         loop
         preload="auto"
+        crossOrigin="anonymous"
       />
 
       {/* Header with Stats */}
@@ -751,7 +810,7 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full relative min-h-[800px] bg-gradient-to-b from-emerald-900 via-green-800 to-emerald-950 rounded-[50px] border-8 border-emerald-100 shadow-2xl overflow-hidden p-6"
+              className="w-full relative min-h-[700px] sm:min-h-[800px] bg-gradient-to-b from-emerald-900 via-green-800 to-emerald-950 rounded-[40px] sm:rounded-[50px] border-4 sm:border-8 border-emerald-100 shadow-2xl overflow-hidden p-4 sm:p-6"
             >
               {/* Magic Forest Background Elements */}
               <div className="absolute inset-0 pointer-events-none">
@@ -945,21 +1004,21 @@ export default function App() {
                     <motion.div 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute right-10 bottom-10 z-30"
+                      className="absolute right-4 bottom-4 z-40"
                     >
                       <button 
                         onClick={startMistakeReview}
-                        className="flex flex-col items-center gap-2 group"
+                        className="flex flex-col items-center gap-1 group"
                       >
                         <div className="relative">
-                          <div className="w-20 h-20 bg-[#D4A373] rounded-full flex items-center justify-center text-white shadow-xl border-4 border-white group-hover:scale-110 transition-transform">
-                            <BookOpen size={32} />
+                          <div className="w-14 h-14 bg-[#D4A373] rounded-2xl flex items-center justify-center text-white shadow-xl border-2 border-white group-hover:scale-110 transition-transform">
+                            <BookOpen size={24} />
                           </div>
-                          <div className="absolute -top-2 -right-2 bg-orange-400 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 border-white shadow-md">
+                          <div className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white shadow-md z-10">
                             {mistakes.length}
                           </div>
                         </div>
-                        <span className="bg-white px-3 py-1 rounded-full text-[#A98467] font-bold text-sm shadow-md">错题本</span>
+                        <span className="bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full text-[#A98467] font-black text-[10px] shadow-sm border border-[#F5EBE0]">错题本</span>
                       </button>
                     </motion.div>
                   )}
@@ -1410,7 +1469,7 @@ export default function App() {
                         onMouseLeave={stopRecording}
                         onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
                         onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-                        className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full transition-all shadow-xl border-4 sm:border-8 flex items-center justify-center select-none touch-none ${
+                        className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full transition-all shadow-xl border-4 sm:border-8 flex items-center justify-center select-none touch-none active:scale-95 ${
                           isRecording 
                             ? 'bg-red-600 border-red-400 scale-105 shadow-[0_0_30px_rgba(220,38,38,0.5)]' 
                             : isMicLoading

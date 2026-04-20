@@ -8,6 +8,7 @@
 @layer base {
   body {
     @apply bg-[#FAF7F2] text-gray-800 antialiased overflow-x-hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
