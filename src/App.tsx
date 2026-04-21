@@ -1621,13 +1621,13 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="cute-card p-10 w-full bg-white/80 backdrop-blur-sm border-4 border-[#F5EBE0]">
-                <div className="text-center mb-10">
-                  <div className="bg-[#FFF9F0] w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-inner">
-                    <Sparkles size={40} className="text-[#D4A373]" />
+              <div className="cute-card p-6 sm:p-10 w-full bg-white/80 backdrop-blur-sm border-4 border-[#F5EBE0]">
+                <div className="text-center mb-8 sm:mb-10">
+                  <div className="bg-[#FFF9F0] w-16 h-16 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <Sparkles size={32} sm:size={40} className="text-[#D4A373]" />
                   </div>
-                  <h2 className="text-3xl font-black text-[#A98467]">拓展关卡：AI 魔法单词</h2>
-                  <p className="text-gray-500 mt-2">拍照或输入单词，AI 老师为你生成专属关卡！</p>
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#A98467]">拓展关卡：AI 魔法单词</h2>
+                  <p className="text-sm sm:text-base text-gray-500 mt-2">拍照或输入单词，AI 老师为你生成专属关卡！</p>
                 </div>
 
                 <div className="flex flex-col gap-6 mb-8 w-full">
@@ -1722,6 +1722,15 @@ export default function App() {
                   <HomeIcon size={24} />
                   返回首页
                 </button>
+                {selectedUnit.id === 'custom-unit' && (
+                  <button 
+                    onClick={() => setMode('extension')}
+                    className="cute-button bg-orange-400 hover:bg-orange-500 w-full flex items-center justify-center gap-3 text-xl"
+                  >
+                    <Sparkles size={24} />
+                    返回拓展关卡
+                  </button>
+                )}
               </div>
               <PartyPopper size={150} className="absolute -bottom-10 -left-10 text-[#F5EBE0] -rotate-12 pointer-events-none" />
               <Sparkles size={150} className="absolute -top-10 -right-10 text-yellow-100 rotate-12 pointer-events-none" />
@@ -1776,6 +1785,15 @@ export default function App() {
                   <HomeIcon size={24} />
                   返回首页
                 </button>
+                {selectedUnit.id === 'custom-unit' && (
+                  <button 
+                    onClick={() => setMode('extension')}
+                    className="cute-button bg-orange-400 hover:bg-orange-500 w-full flex items-center justify-center gap-3 text-xl"
+                  >
+                    <Sparkles size={24} />
+                    返回拓展关卡
+                  </button>
+                )}
               </div>
               <PartyPopper size={150} className="absolute -bottom-10 -left-10 text-[#F5EBE0] -rotate-12 pointer-events-none" />
               <Sparkles size={150} className="absolute -top-10 -right-10 text-yellow-100 rotate-12 pointer-events-none" />
