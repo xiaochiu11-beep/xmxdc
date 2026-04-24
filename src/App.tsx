@@ -999,26 +999,30 @@ export default function App() {
                     </div>
                   </motion.div>
 
-                  {/* Mistakes Review Entry */}
+                  {/* Mistakes Review Entry - Adjusted to be in the far corner and match level icon size */}
                   {mistakes.length > 0 && (
                     <motion.div 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute right-4 bottom-4 z-40"
+                      className="absolute right-4 bottom-4 z-50 group"
                     >
                       <button 
                         onClick={startMistakeReview}
-                        className="flex flex-col items-center gap-1 group"
+                        className="relative flex items-center justify-center"
                       >
-                        <div className="relative">
-                          <div className="w-14 h-14 bg-[#D4A373] rounded-2xl flex items-center justify-center text-white shadow-xl border-2 border-white group-hover:scale-110 transition-transform">
-                            <BookOpen size={24} />
-                          </div>
-                          <div className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white shadow-md z-10">
-                            {mistakes.length}
-                          </div>
+                        <div className="w-14 h-14 bg-gradient-to-br from-[#D4A373] to-[#A98467] rounded-2xl flex items-center justify-center text-white shadow-xl border-4 border-white group-hover:scale-110 transition-transform">
+                          <BookOpen size={24} />
                         </div>
-                        <span className="bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full text-[#A98467] font-black text-[10px] shadow-sm border border-[#F5EBE0]">错题本</span>
+                        
+                        {/* Notification Badge */}
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold border-2 border-white shadow-md z-10">
+                          {mistakes.length}
+                        </div>
+
+                        {/* Floating Label on Hover */}
+                        <div className="absolute -top-10 right-0 bg-[#D4A373] text-white px-3 py-1 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+                          错题复习
+                        </div>
                       </button>
                     </motion.div>
                   )}
@@ -1737,7 +1741,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {mode === 'review-result' && selectedUnit && (
+          {mode === 'review-result' && (selectedUnit || isReviewingMistakes) && (
             <motion.div 
               key="result"
               initial={{ scale: 0.5, opacity: 0 }}
@@ -1751,33 +1755,52 @@ export default function App() {
               >
                 <Trophy size={48} className="text-yellow-500" />
               </motion.div>
-              <h2 className="text-3xl font-black text-gray-800 mb-2">挑战大成功！</h2>
+              <h2 className="text-3xl font-black text-gray-800 mb-2">
+                {isReviewingMistakes ? "复习完成！" : "挑战大成功！"}
+              </h2>
               <div className="space-y-2 mb-8">
                 <p className="text-xl text-gray-500">
-                  总积分: <span className="text-[#A98467] font-black text-3xl">{points}</span>
+                  {isReviewingMistakes ? "你清扫了所有错题！" : (
+                    <>总积分: <span className="text-[#A98467] font-black text-3xl">{points}</span></>
+                  )}
                 </p>
-                <div className="flex justify-center gap-1">
-                  {[...Array(Math.min(stars, 5))].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
-                    >
-                      <Star size={24} className="text-yellow-400 fill-yellow-400" />
-                    </motion.div>
-                  ))}
-                </div>
+                {!isReviewingMistakes && (
+                  <div className="flex justify-center gap-1">
+                    {[...Array(Math.min(stars, 5))].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                      >
+                        <Star size={24} className="text-yellow-400 fill-yellow-400" />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div className="space-y-4 relative z-10">
-                <button 
-                  onClick={() => handleSelectUnit(selectedUnit, 'review')}
-                  className="cute-button bg-[#D4A373] hover:bg-[#A98467] w-full flex items-center justify-center gap-3 text-xl"
-                >
-                  <RotateCcw size={24} />
-                  再挑战一次
-                </button>
+                {!isReviewingMistakes && selectedUnit && (
+                  <button 
+                    onClick={() => handleSelectUnit(selectedUnit, 'review')}
+                    className="cute-button bg-[#D4A373] hover:bg-[#A98467] w-full flex items-center justify-center gap-3 text-xl"
+                  >
+                    <RotateCcw size={24} />
+                    再挑战一次
+                  </button>
+                )}
+                
+                {isReviewingMistakes && (
+                  <button 
+                    onClick={startMistakeReview}
+                    className="cute-button bg-[#D4A373] hover:bg-[#A98467] w-full flex items-center justify-center gap-3 text-xl"
+                  >
+                    <RotateCcw size={24} />
+                    重新练习
+                  </button>
+                )}
+
                 <button 
                   onClick={goHome}
                   className="cute-button bg-[#E6CCB2] hover:bg-[#D4A373] w-full flex items-center justify-center gap-3 text-xl"
@@ -1785,7 +1808,7 @@ export default function App() {
                   <HomeIcon size={24} />
                   返回首页
                 </button>
-                {selectedUnit.id === 'custom-unit' && (
+                {selectedUnit?.id === 'custom-unit' && !isReviewingMistakes && (
                   <button 
                     onClick={() => setMode('extension')}
                     className="cute-button bg-orange-400 hover:bg-orange-500 w-full flex items-center justify-center gap-3 text-xl"
