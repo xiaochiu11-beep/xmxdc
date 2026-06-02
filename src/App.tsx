@@ -70,6 +70,93 @@ const PET_MESSAGES = [
   "看！那颗星星在为你闪烁！⭐"
 ];
 
+interface SentencePair {
+  english: string;
+  chinese: string;
+}
+
+const getStorySentencePairs = (story: string, storyTranslation: string): SentencePair[] => {
+  if (!story) return [];
+  // Split on sentence terminals: ., !, ? followed by whitespace or quote or end of string
+  const engMatches = story.match(/[^.!?]+(?:[.!?]["'”]?|\s*)/g) || [];
+  const engSentences = engMatches.map(s => s.trim()).filter(s => s.length > 0);
+
+  const chiMatches = storyTranslation.match(/[^。！？]+(?:[。！？]["'”]?|\s*)/g) || [];
+  const chiSentences = chiMatches.map(s => s.trim()).filter(s => s.length > 0);
+
+  if (engSentences.length === chiSentences.length && engSentences.length > 0) {
+    return engSentences.map((eng, idx) => ({
+      english: eng,
+      chinese: chiSentences[idx]
+    }));
+  }
+
+  // Fallback if mismatch: pair up manually or put as single block
+  if (engSentences.length > 0 && chiSentences.length > 0) {
+    const pairs: SentencePair[] = [];
+    const minLen = Math.min(engSentences.length, chiSentences.length);
+    for (let i = 0; i < minLen; i++) {
+       pairs.push({ english: engSentences[i], chinese: chiSentences[i] });
+    }
+    // Append any extra English sentences
+    if (engSentences.length > minLen) {
+      for (let i = minLen; i < engSentences.length; i++) {
+        pairs.push({ english: engSentences[i], chinese: '' });
+      }
+    }
+    // Append any extra Chinese sentences to the last pair
+    if (chiSentences.length > minLen && pairs.length > 0) {
+      pairs[pairs.length - 1].chinese += ' ' + chiSentences.slice(minLen).join(' ');
+    }
+    return pairs;
+  }
+
+  return [{ english: story, chinese: storyTranslation }];
+};
+
+const PREDEFINED_GRAMMAR_POINTS: Record<number | string, { title: string; desc: string }[]> = {
+  1: [
+    { title: "Let's + 动词原形", desc: "表示提议或建议，“让我们一起做某事吧！”。例如：Let's go to the park! (我们去公园吧！)" },
+    { title: "Don't forget to + 动词原形", desc: "表示温柔地提醒或命令，“别忘了做某事”。例如：Don't forget to wash hands! (别忘了洗手！)" },
+    { title: "一般现在时第三人称单数形式", desc: "当主语是单个的人或事物时，后面的动作要加词尾。例如：Lily wears... (莉莉穿着……), She runs... (她跑……)" }
+  ],
+  2: [
+    { title: "It's time to + 动词原形", desc: "表示“该到做某事的时间了！”。例如：It's time to hurry to school! (该赶紧去学校了！)" },
+    { title: "It's time for + 名词", desc: "表示“该到某样事物的时间了”。例如：time for bed (该上床睡觉了)" },
+    { title: "小学必备时间表达法", desc: "整点用 o'clock；半点用 half past 加上小时。例如：half past eight (八点半), seven o'clock (七点整)" }
+  ],
+  3: [
+    { title: "Maybe 开头表达推测", desc: "Maybe表示‘大概、也许’，通常直接放在句子开头来猜测。例如：Maybe I can join a sport club." },
+    { title: "spend [时间] to do sth", desc: "表示“花费多长时间去做某事”。例如：spend one hour to pack books (花一个小时收拾书)" },
+    { title: "年龄的常用表达法", desc: "数字后面直接接 years old，或者直接写数字。例如：forty years old (四十岁了)" }
+  ],
+  4: [
+    { title: "loves/likes to + 动词原形", desc: "用来表达非常喜爱、热爱做某事。例如：She loves to eat yummy things. (她特别喜欢吃美味的东西。)" },
+    { title: "Can I + 动词原形? 的疑问句", desc: "用于礼貌地征得别人的同意，“我可以……吗？”。例如：Can I join your game? (我能加入你们的游戏吗？)" },
+    { title: "动名词 -ing 充当主语", desc: "将动作变成 -ing 后作为高大上的主语，谓语动词用 is。例如：Playing football is... (学踢足球是……)" }
+  ],
+  5: [
+    { title: "must + 动词原形", desc: "表示“必须、一定要”做某事，具有很强的规章和语气。例如：We must follow rules. (我们必须遵守规则。)" },
+    { title: "need to + 动词原形", desc: "表示“需要、应当”做某事，语气更温和。例如：we need to clean... (我们需要打扫……)" },
+    { title: "must not（绝对不行）", desc: "表示绝对禁止，绝对不可以做的事。例如：must not run away (不可以跑开)" }
+  ],
+  6: [
+    { title: "常用动作的过去式", desc: "用来描述过去发生的事情，动词要变过去式。例如：went (go的过去式), ate (eat的过去式), said (say的过去式)" },
+    { title: "情态动词 should（应该）", desc: "表应该、应当做某事，通常用来给出好的建议。例如：You should carry out... (大家应该拿出……)" },
+    { title: "祈使句（命令和指令）", desc: "直接以动词原形开头，省略主语you，对别人发号施令。例如：Stand in a line, please. (请排排队。)" }
+  ],
+  7: [
+    { title: "礼貌用语二人组", desc: "Excuse me 在打扰、让路或问询时说代表“请问”；Sorry 在做错了事或表达歉意时说代表“对不起”。" },
+    { title: "选择疑问句 (使用 or)", desc: "使用 or（或者）连接两个选择让我们挑选其一。例如：go to the toilet or drink some water? (去洗手间还是喝点水？)" },
+    { title: "多动作的并列表示法", desc: "有三个或以上连续动作时，前面动作加逗号，最后一个前加 and。例如：walk there, knock on the door, and turn off... " }
+  ],
+  8: [
+    { title: "Before（在……之前）时间状语从句", desc: "表示在一个动作做之前发生的事。例如：Before we use the computer... (在我们用电脑前……)" },
+    { title: "When（当……时）时间状语从句", desc: "表示当时间处于某处、做某事的时候。例如：When you go outside... (当你走到外面的时候……)" },
+    { title: "绝对禁止与劝阻 (使用 never)", desc: "使用 never（千万别）或 don't 开头表示强烈的禁止劝说。例如：never litter! (千万不要乱扔垃圾！)" }
+  ]
+};
+
 export default function App() {
   const [mode, setMode] = useState<Mode>('home');
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -132,6 +219,7 @@ export default function App() {
   const [extensionInput, setExtensionInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [customUnit, setCustomUnit] = useState<Unit | null>(null);
+  const [showStoryTranslation, setShowStoryTranslation] = useState(false);
   const [petPosition, setPetPosition] = useState({ left: '5%', bottom: '20%' });
   const [petMessage, setPetMessage] = useState(PET_MESSAGES[0]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -273,7 +361,14 @@ export default function App() {
   const generateCustomUnit = async (input: string | { mimeType: string, data: string }) => {
     setIsGenerating(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      
+      // Check for missing API key which is common after deployment to other platforms
+      if (!apiKey || apiKey === 'undefined' || apiKey === '') {
+        throw new Error('API_KEY_MISSING');
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are a helpful English teacher for kids. 
       Based on the provided input (either a list of words or an image containing words), extract or generate a list of 5-10 English words suitable for children to learn.
       For each word, provide:
@@ -282,6 +377,9 @@ export default function App() {
       3. Its Chinese meaning.
       4. A simple example sentence in English.
       5. The Chinese translation of that sentence.
+
+      Also, create a short, lively and interesting story (2-4 sentences) that integrates all of the extracted/generated words. The story should use simple English suitable for 3rd-grade primary school students, and provide its Chinese translation.
+      In addition, extract 2-3 key grammar/knowledge points (语法/知识点) used in the story, and explain them in a very simple, lively, engaging child-friendly tone.
 
       Return the result as a JSON object matching this structure:
       {
@@ -296,17 +394,25 @@ export default function App() {
             "sentence": "I like to eat a red apple.",
             "translation": "我喜欢吃红苹果。"
           }
+        ],
+        "story": "A short, engaging English story...",
+        "storyTranslation": "该英语小故事的中文翻译...",
+        "grammarPoints": [
+          {
+            "title": "语法点标题",
+            "desc": "简单活泼的中文解释，并附带例句..."
+          }
         ]
       }
       Only return the JSON object, no other text.`;
 
       const contents = typeof input === 'string' 
-        ? input 
-        : { parts: [{ text: prompt }, { inlineData: input }] };
+        ? [{ parts: [{ text: `${prompt}\n\nInput words: ${input}` }] }]
+        : [{ parts: [{ text: prompt }, { inlineData: input }] }];
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: typeof input === 'string' ? [{ parts: [{ text: prompt + "\n\nInput words: " + input }] }] : contents,
+        contents,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -328,19 +434,40 @@ export default function App() {
                   },
                   required: ["id", "word", "ipa", "meaning", "sentence", "translation"]
                 }
+              },
+              story: { type: Type.STRING },
+              storyTranslation: { type: Type.STRING },
+              grammarPoints: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    title: { type: Type.STRING },
+                    desc: { type: Type.STRING }
+                  },
+                  required: ["title", "desc"]
+                }
               }
             },
-            required: ["id", "title", "words"]
+            required: ["id", "title", "words", "story", "storyTranslation", "grammarPoints"]
           }
         }
       });
 
+      if (!response.text) {
+        throw new Error('EMPTY_RESPONSE');
+      }
+
       const result = JSON.parse(response.text);
       setCustomUnit(result);
       handleSelectUnit(result, 'learning');
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Generation Error:", error);
-      alert("生成失败，请稍后再试或检查输入内容。");
+      if (error.message === 'API_KEY_MISSING') {
+        alert("检测到未配置 API 密匙。请在部署平台的环境变量中添加 GEMINI_API_KEY。");
+      } else {
+        alert("生成失败，请稍后再试或检查输入内容。如果多次失败，请检查 API 密匙是否正确且具有配额。");
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -390,6 +517,47 @@ export default function App() {
     } catch (e) {
       console.error("Speech Synthesis failed:", e);
     }
+  };
+
+  const renderHighlightedStory = (story: string, words: Word[]) => {
+    if (!story) return null;
+    
+    // Sort words by length descending to match longer words first
+    const sortedWords = [...words].sort((a, b) => b.word.length - a.word.length);
+    
+    // Build a regex pattern matching any of the words (case insensitive, word boundary checks)
+    const escapedWords = sortedWords.map(w => w.word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
+    
+    // We match words with boundaries properly
+    const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+    
+    const parts = story.split(regex);
+    if (parts.length === 1) return <span className="inline-block align-middle text-gray-800 font-semibold text-[1.25rem] leading-relaxed select-text py-2">{story}</span>;
+    
+    return parts.map((part, index) => {
+      const isMatched = words.some(w => w.word.toLowerCase() === part.toLowerCase());
+      if (isMatched) {
+        const matchWord = words.find(w => w.word.toLowerCase() === part.toLowerCase());
+        return (
+          <span 
+            key={index} 
+            onClick={() => speak(part)}
+            className="inline-flex flex-col items-center justify-center align-middle mx-1 cursor-pointer transform hover:scale-105 active:scale-95 transition-all select-none"
+            title={`点击发音: ${matchWord?.meaning || ''}`}
+          >
+            <span className="bg-orange-100 text-orange-700 px-2.5 py-0.5 rounded-xl font-black hover:bg-orange-500 hover:text-white transition-all shadow-sm text-[1.25rem] leading-none mb-0.5">
+              {part}
+            </span>
+            {showStoryTranslation && matchWord && (
+              <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-1 py-0.5 rounded border border-orange-200/50 leading-none shadow-sm mt-0.5">
+                {matchWord.meaning}
+              </span>
+            )}
+          </span>
+        );
+      }
+      return <span key={index} className="inline-block align-middle text-gray-800 font-semibold text-[1.25rem] leading-relaxed select-text py-1">{part}</span>;
+    });
   };
 
   const startRecording = async () => {
@@ -596,7 +764,8 @@ export default function App() {
   // Learning Mode Logic
   const nextWord = () => {
     const list = isReviewingMistakes ? mistakes : selectedUnit?.words || [];
-    if (currentWordIndex < list.length - 1) {
+    const maxIndex = (!isReviewingMistakes && mode === 'learning' && selectedUnit?.story) ? list.length : list.length - 1;
+    if (currentWordIndex < maxIndex) {
       setCurrentWordIndex(prev => prev + 1);
       setPronunciationFeedback({ text: '', type: null });
       setSpellingInput('');
@@ -1051,152 +1220,273 @@ export default function App() {
                     </button>
                   )}
                   <span className="bg-[#FFF9F0] text-[#A98467] px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-[#F5EBE0]">
-                    {selectedUnit.title}
+                    {currentWordIndex === selectedUnit.words.length ? `${selectedUnit.title} - 故事乐园` : selectedUnit.title}
                   </span>
                 </div>
                 <div className="flex-1 mx-8 h-4 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                   <motion.div 
                     className="bg-gradient-to-r from-[#D4A373] to-[#E6CCB2] h-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${((currentWordIndex + 1) / selectedUnit.words.length) * 100}%` }}
+                    animate={{ width: `${((currentWordIndex + (currentWordIndex === selectedUnit.words.length ? 1 : 1)) / (selectedUnit.story ? selectedUnit.words.length + 1 : selectedUnit.words.length)) * 100}%` }}
                   />
                 </div>
-                <span className="text-gray-400 font-bold text-lg">
-                  {currentWordIndex + 1} / {selectedUnit.words.length}
+                <span className="text-gray-400 font-bold text-lg whitespace-nowrap">
+                  {currentWordIndex === selectedUnit.words.length ? "📖 单元故事" : `${currentWordIndex + 1} / ${selectedUnit.words.length}`}
                 </span>
               </div>
 
-              <div className="cute-card w-full p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-8 bg-white/80 backdrop-blur-sm">
-                <div className="w-full text-center">
-                  <div className="flex flex-col items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                    <h2 className="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight break-words max-w-full">
-                      {selectedUnit.words[currentWordIndex].word}
-                    </h2>
-                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                      <button 
-                        onClick={() => speak(selectedUnit.words[currentWordIndex].word)}
-                        className="p-2 sm:p-3 bg-yellow-100 text-yellow-600 rounded-xl sm:rounded-2xl hover:bg-yellow-200 transition-colors shadow-sm"
-                        title="标准英音朗读"
-                      >
-                        <Volume2 size={24} sm:size={32} />
-                      </button>
-                      <div className="relative group">
+              {currentWordIndex < selectedUnit.words.length ? (
+                // --- Individual Word Card ---
+                <div className="w-full flex flex-col items-center">
+                  <div className="cute-card w-full p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-8 bg-white/80 backdrop-blur-sm">
+                    <div className="w-full text-center">
+                      <div className="flex flex-col items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                        <h2 className="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight break-words max-w-full">
+                          {selectedUnit.words[currentWordIndex].word}
+                        </h2>
+                        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                          <button 
+                            onClick={() => speak(selectedUnit.words[currentWordIndex].word)}
+                            className="p-2 sm:p-3 bg-yellow-100 text-yellow-600 rounded-xl sm:rounded-2xl hover:bg-yellow-200 transition-colors shadow-sm"
+                            title="标准英音朗读"
+                          >
+                            <Volume2 size={24} sm:size={32} />
+                          </button>
+                          <div className="relative group">
+                            <button 
+                              onMouseDown={startRecording}
+                              onMouseUp={stopRecording}
+                              onMouseLeave={stopRecording}
+                              onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
+                              onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
+                              className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-all shadow-sm flex items-center gap-2 select-none touch-none ${
+                                isRecording ? 'bg-red-500 text-white scale-110' : 
+                                isMicLoading ? 'bg-yellow-400 text-white scale-105' :
+                                'bg-[#FFF9F0] text-[#A98467] hover:bg-[#F5EBE0]'
+                              }`}
+                              title={isMicLoading ? "正在载入..." : "长按录音"}
+                            >
+                              {isMicLoading ? <Loader2 size={24} sm:size={32} className="animate-spin" /> : <Mic size={24} sm:size={32} />}
+                              {isRecording && <span className="text-xs sm:text-sm font-bold animate-pulse">录制中...</span>}
+                              {isMicLoading && <span className="text-xs sm:text-sm font-bold animate-pulse">调取中...</span>}
+                            </button>
+                          </div>
+                          {recordedUrl && (
+                            <button 
+                              onClick={playRecordedAudio}
+                              className="p-2 sm:p-3 bg-green-100 text-green-600 rounded-xl sm:rounded-2xl hover:bg-green-200 transition-colors shadow-sm flex items-center gap-2"
+                              title="播放我的录音"
+                            >
+                              <Play size={24} sm:size={32} />
+                              <span className="text-xs sm:text-sm font-bold">听听我的</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xl sm:text-2xl text-blue-500 font-bold mb-4 sm:mb-6">
+                        {selectedUnit.words[currentWordIndex].ipa}
+                      </p>
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="bg-[#FFF9F0] p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-[#F5EBE0] inline-block">
+                          <h3 className="text-xl sm:text-2xl font-bold text-[#A98467]">
+                            {selectedUnit.words[currentWordIndex].meaning}
+                          </h3>
+                        </div>
+                        
+                        {/* Pronunciation Feedback Bubble */}
+                        <AnimatePresence>
+                          {pronunciationFeedback.text && (
+                            <motion.div
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              className={`px-6 py-4 rounded-3xl font-bold shadow-md border-2 flex flex-col gap-2 ${
+                                pronunciationFeedback.type === 'good' ? 'bg-green-50 border-green-200 text-green-700' : 
+                                pronunciationFeedback.type === 'try' ? 'bg-orange-50 border-orange-200 text-orange-700' : 
+                                'bg-blue-50 border-blue-200 text-blue-700'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-lg">👩‍🏫</div>
+                                  <span>{pronunciationFeedback.text}</span>
+                                </div>
+                                {pronunciationFeedback.stars !== undefined && (
+                                  <div className="flex gap-1 ml-auto bg-white/50 px-3 py-1 rounded-full shadow-inner border border-black/5">
+                                    {[...Array(5)].map((_, i) => (
+                                      <Star 
+                                        key={i} 
+                                        size={16} 
+                                        className={i < pronunciationFeedback.stars! ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'} 
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              {pronunciationFeedback.teacherTip && (
+                                <div className="text-sm font-medium italic border-t border-black/5 pt-2 mt-1 opacity-80">
+                                  " {pronunciationFeedback.teacherTip} "
+                                </div>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+
+                    <div className="w-full bg-blue-50 p-6 rounded-[30px] border-4 border-white shadow-inner">
+                      <div className="flex items-center justify-center gap-3 mb-3">
+                        <span className="bg-blue-200 text-blue-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">Example</span>
                         <button 
-                          onMouseDown={startRecording}
-                          onMouseUp={stopRecording}
-                          onMouseLeave={stopRecording}
-                          onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-                          onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-                          className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl transition-all shadow-sm flex items-center gap-2 select-none touch-none ${
-                            isRecording ? 'bg-red-500 text-white scale-110' : 
-                            isMicLoading ? 'bg-yellow-400 text-white scale-105' :
-                            'bg-[#FFF9F0] text-[#A98467] hover:bg-[#F5EBE0]'
-                          }`}
-                          title={isMicLoading ? "正在载入..." : "长按录音"}
+                          onClick={() => speak(selectedUnit.words[currentWordIndex].sentence)}
+                          className="text-blue-400 hover:text-blue-600 transition-colors"
                         >
-                          {isMicLoading ? <Loader2 size={24} sm:size={32} className="animate-spin" /> : <Mic size={24} sm:size={32} />}
-                          {isRecording && <span className="text-xs sm:text-sm font-bold animate-pulse">录制中...</span>}
-                          {isMicLoading && <span className="text-xs sm:text-sm font-bold animate-pulse">调取中...</span>}
+                          <Volume2 size={20} />
                         </button>
                       </div>
-                      {recordedUrl && (
-                        <button 
-                          onClick={playRecordedAudio}
-                          className="p-2 sm:p-3 bg-green-100 text-green-600 rounded-xl sm:rounded-2xl hover:bg-green-200 transition-colors shadow-sm flex items-center gap-2"
-                          title="播放我的录音"
+                      <p className="text-xl font-bold text-gray-700 leading-relaxed mb-3 italic text-center">
+                        "{selectedUnit.words[currentWordIndex].sentence}"
+                      </p>
+                      <p className="text-lg text-gray-500 font-medium text-center">
+                        {selectedUnit.words[currentWordIndex].translation}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // --- Story Land Card (Main Page after last word) ---
+                selectedUnit.story && (
+                  <div className="w-full cute-card bg-gradient-to-br from-[#FFF9F0] to-[#F5EBE0] border-4 border-white shadow-xl p-6 relative overflow-hidden" id="unit-story-panel">
+                    {/* Decorative background circle */}
+                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-200/20 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute -left-10 -top-10 w-40 h-40 bg-yellow-200/20 rounded-full blur-2xl pointer-events-none" />
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-orange-100/60 relative z-10 w-full">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">📖</span>
+                        <div className="text-left">
+                          <h3 className="text-2xl font-black text-[#A98467] tracking-tight">
+                            单元故事乐园 <span className="text-sm font-semibold text-gray-500 ml-1">Story Land</span>
+                          </h3>
+                          <p className="text-xs text-[#D4A373] font-bold mt-0.5">生动有趣的故事，轻松记住单元所有单词！</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <button
+                          onClick={() => speak(selectedUnit.story!)}
+                          className="flex-1 sm:flex-initial flex items-center justify-center gap-1 bg-[#D4A373] hover:bg-[#A98467] text-white px-4 py-2 rounded-full font-bold text-sm shadow-sm transition-all hover:scale-105 active:scale-95 cursor-pointer"
                         >
-                          <Play size={24} sm:size={32} />
-                          <span className="text-xs sm:text-sm font-bold">听听我的</span>
+                          <Volume2 size={16} />
+                          听故事
                         </button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-xl sm:text-2xl text-blue-500 font-bold mb-4 sm:mb-6">
-                    {selectedUnit.words[currentWordIndex].ipa}
-                  </p>
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="bg-[#FFF9F0] p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-[#F5EBE0] inline-block">
-                      <h3 className="text-xl sm:text-2xl font-bold text-[#A98467]">
-                        {selectedUnit.words[currentWordIndex].meaning}
-                      </h3>
-                    </div>
-                    
-                    {/* Pronunciation Feedback Bubble */}
-                    <AnimatePresence>
-                      {pronunciationFeedback.text && (
-                        <motion.div
-                          initial={{ x: -20, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className={`px-6 py-4 rounded-3xl font-bold shadow-md border-2 flex flex-col gap-2 ${
-                            pronunciationFeedback.type === 'good' ? 'bg-green-50 border-green-200 text-green-700' : 
-                            pronunciationFeedback.type === 'try' ? 'bg-orange-50 border-orange-200 text-orange-700' : 
-                            'bg-blue-50 border-blue-200 text-blue-700'
-                          }`}
+                        <button
+                          onClick={() => setShowStoryTranslation(!showStoryTranslation)}
+                          className="flex-1 sm:flex-initial flex items-center justify-center gap-1 bg-white hover:bg-[#FFF9F0] text-[#A98467] border-2 border-[#D4A373]/30 px-4 py-2 rounded-full font-bold text-sm shadow-sm transition-all hover:scale-105 cursor-pointer"
                         >
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-lg">👩‍🏫</div>
-                              <span>{pronunciationFeedback.text}</span>
-                            </div>
-                            {pronunciationFeedback.stars !== undefined && (
-                              <div className="flex gap-1 ml-auto bg-white/50 px-3 py-1 rounded-full shadow-inner border border-black/5">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star 
-                                    key={i} 
-                                    size={16} 
-                                    className={i < pronunciationFeedback.stars! ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'} 
-                                  />
-                                ))}
+                          {showStoryTranslation ? '隐藏翻译' : '看翻译'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="relative z-10 w-full text-left flex flex-col gap-6">
+                      <div className="bg-white/80 p-5 sm:p-7 rounded-[24px] border border-[#F5EBE0]/80 shadow-inner flex flex-col gap-5">
+                        {getStorySentencePairs(selectedUnit.story, selectedUnit.storyTranslation || '').map((pair, idx) => {
+                          return (
+                            <div key={idx} className="flex flex-col gap-2 border-b border-dashed border-[#F5EBE0]/40 last:border-0 pb-4 last:pb-0">
+                              <div className="text-lg sm:text-xl text-gray-800 font-bold leading-relaxed">
+                                <span className="inline-flex items-center justify-center bg-[#E6CCB2] text-[#A98467] text-xs font-black w-6 h-6 rounded-full mr-2.5 align-middle shadow-sm">
+                                  {idx + 1}
+                                </span>
+                                {renderHighlightedStory(pair.english, selectedUnit.words)}
                               </div>
-                            )}
-                          </div>
-                          {pronunciationFeedback.teacherTip && (
-                            <div className="text-sm font-medium italic border-t border-black/5 pt-2 mt-1 opacity-80">
-                              " {pronunciationFeedback.teacherTip} "
+                              {showStoryTranslation && pair.chinese && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 4 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="pl-8 text-base sm:text-lg text-[#8B5E3C] font-semibold leading-relaxed flex items-center gap-1.5"
+                                >
+                                  <span className="text-orange-400 select-none">✨</span>
+                                  <span>{pair.chinese}</span>
+                                </motion.div>
+                              )}
                             </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
+                          );
+                        })}
+                      </div>
+                    </div>
 
-                <div className="w-full bg-blue-50 p-6 rounded-[30px] border-4 border-white shadow-inner">
-                  <div className="flex items-center justify-center gap-3 mb-3">
-                    <span className="bg-blue-200 text-blue-700 px-3 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">Example</span>
-                    <button 
-                      onClick={() => speak(selectedUnit.words[currentWordIndex].sentence)}
-                      className="text-blue-400 hover:text-blue-600 transition-colors"
-                    >
-                      <Volume2 size={20} />
-                    </button>
-                  </div>
-                  <p className="text-xl font-bold text-gray-700 leading-relaxed mb-3 italic text-center">
-                    "{selectedUnit.words[currentWordIndex].sentence}"
-                  </p>
-                  <p className="text-lg text-gray-500 font-medium text-center">
-                    {selectedUnit.words[currentWordIndex].translation}
-                  </p>
-                </div>
-              </div>
+                    {/* Grammar Points / Knowledge Points Box */}
+                    {(() => {
+                      const grammarPoints = selectedUnit.grammarPoints || PREDEFINED_GRAMMAR_POINTS[selectedUnit.id] || [];
+                      if (grammarPoints.length === 0) return null;
+                      return (
+                        <div className="mt-6 w-full text-left relative z-10">
+                          <div className="bg-[#FFF2E0]/70 border-2 border-[#E6CCB2]/50 p-5 sm:p-6 rounded-[24px] shadow-sm">
+                            <h4 className="text-lg font-black text-[#A98467] flex items-center gap-2 mb-4 pb-2 border-b border-orange-100">
+                              <span>🦖</span>
+                              故事语法魔法盒 <span className="text-xs font-bold text-[#D4A373] tracking-widest uppercase ml-1">Grammar Magic Box</span>
+                            </h4>
+                            <div className="flex flex-col gap-4">
+                              {grammarPoints.map((pt, pIdx) => (
+                                <div key={pIdx} className="bg-white/70 p-4 rounded-2xl border border-[#F5EBE0] shadow-sm hover:shadow-md transition-all">
+                                  <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="inline-block bg-orange-100 text-[#D4A373] text-[10px] font-black px-2 py-0.5 rounded-lg whitespace-nowrap">
+                                      知识点 {pIdx + 1}
+                                    </span>
+                                    <span className="text-[#8B5E3C] font-black text-base sm:text-lg">{pt.title}</span>
+                                  </div>
+                                  <p className="text-sm sm:text-base text-gray-600 font-medium pl-1 leading-relaxed">
+                                    {pt.desc}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
-              <div className="flex gap-4 mt-8">
+                    {/* Legend of highlighted words */}
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-500 border-t border-dashed border-[#F5EBE0] pt-4 w-full">
+                      <span className="font-bold text-gray-400 self-center">故事单词速查 (点击发音)：</span>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedUnit.words.map((w) => (
+                          <button 
+                            key={w.id} 
+                            onClick={() => speak(w.word)}
+                            className="bg-white hover:bg-orange-50 text-[#A98467] px-2.5 py-1 rounded-lg border border-[#F5EBE0] cursor-pointer transition-all hover:scale-105 shadow-sm active:scale-95 flex items-center gap-1 text-xs font-bold"
+                          >
+                            <span>{w.word}</span>
+                            <span className="text-[10px] text-gray-400 font-normal">({w.meaning})</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+
+              <div className="flex gap-4 mt-8 w-full max-w-sm">
                 <button 
                   onClick={prevWord}
                   disabled={currentWordIndex === 0}
-                  className={`cute-button flex items-center gap-2 text-xl ${currentWordIndex === 0 ? 'bg-gray-300' : 'bg-[#D4A373] hover:bg-[#A98467]'}`}
+                  className={`flex-1 cute-button flex items-center justify-center gap-2 text-xl ${currentWordIndex === 0 ? 'bg-gray-300' : 'bg-[#D4A373] hover:bg-[#A98467] text-white'}`}
                 >
                   <ChevronLeft size={28} />
                   上一个
                 </button>
                 <button 
                   onClick={nextWord}
-                  disabled={currentWordIndex === selectedUnit.words.length - 1}
-                  className={`cute-button flex items-center gap-2 text-xl ${currentWordIndex === selectedUnit.words.length - 1 ? 'bg-gray-300' : 'bg-[#E6CCB2] hover:bg-[#D4A373]'}`}
+                  className="flex-1 cute-button flex items-center justify-center gap-2 text-xl bg-[#E6CCB2] hover:bg-[#D4A373] text-white"
                 >
-                  下一个
-                  <ChevronRight size={28} />
+                  {currentWordIndex === selectedUnit.words.length ? (
+                    <span>完成学习 🎉</span>
+                  ) : (
+                    <>
+                      <span>下一个</span>
+                      <ChevronRight size={28} />
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>

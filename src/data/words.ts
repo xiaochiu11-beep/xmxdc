@@ -7,10 +7,18 @@ export interface Word {
   translation: string;
 }
 
+export interface GrammarPoint {
+  title: string;
+  desc: string;
+}
+
 export interface Unit {
-  id: number;
+  id: number | string;
   title: string;
   words: Word[];
+  story?: string;
+  storyTranslation?: string;
+  grammarPoints?: GrammarPoint[];
 }
 
 export const wordData: Unit[] = [
@@ -31,14 +39,16 @@ export const wordData: Unit[] = [
       { id: "1-11", word: "go", ipa: "/ɡəʊ/", meaning: "去", sentence: "Let's go to the park together.", translation: "我们一起去公园吧。" },
       { id: "1-12", word: "Saturday", ipa: "/ˈsætədeɪ/", meaning: "星期六", sentence: "I go to the library every Saturday.", translation: "我每个星期六都去图书馆。" },
       { id: "1-13", word: "today", ipa: "/təˈdeɪ/", meaning: "今天", sentence: "Today is a sunny day.", translation: "今天是个晴天。" },
-    ]
+    ],
+    story: "Today is Saturday! Lily wears a cute pink dress. She runs to the table for breakfast. Oh! Don't forget to wash hands and brush every tooth! \"Hurry up, a quick dog is waiting! Let's go to the park, we won't be late! After that, we can play!\"",
+    storyTranslation: "今天是星期六！莉莉穿着一件可爱的粉色连衣裙。她跑到桌子旁吃早餐。噢！别忘了洗手，刷干净每一颗牙齿！“快点，一只跑得很快的小狗正等着呢！我们去公园吧，不会迟到的！在那之后我们还可以玩耍！”"
   },
   {
     id: 2,
     title: "Unit 2",
     words: [
       { id: "2-1", word: "o'clock", ipa: "/əˈklɒk/", meaning: "……点钟", sentence: "It's seven o'clock, time to get up.", translation: "七点钟了，该起床了。" },
-      { id: "2-2", word: "half", ipa: "/hɑːf/", meaning: "一半", sentence: "Can I have half of your apple?", translation: "我能吃你一半的苹果吗？" },
+      { id: "2-2", word: "half", ipa: "/hɑːf/", meaning: "一半", translation: "我能吃你一半的苹果吗？", sentence: "Can I have half of your apple?" },
       { id: "2-3", word: "past", ipa: "/pɑːst/", meaning: "过了（时间）", sentence: "It's half past eight.", translation: "现在是八点半。" },
       { id: "2-4", word: "thirty", ipa: "/ˈθɜːti/", meaning: "三十", sentence: "There are thirty students in my class.", translation: "我们班有三十个学生。" },
       { id: "2-5", word: "home", ipa: "/həʊm/", meaning: "家", sentence: "I'm going home now.", translation: "我现在要回家了。" },
@@ -53,7 +63,9 @@ export const wordData: Unit[] = [
       { id: "2-14", word: "dream", ipa: "/driːm/", meaning: "梦", sentence: "I had a sweet dream last night.", translation: "我昨晚做了一个甜美的梦。" },
       { id: "2-15", word: "eleven", ipa: "/ɪˈlevn/", meaning: "十一", sentence: "My brother is eleven years old.", translation: "我哥哥十一岁了。" },
       { id: "2-16", word: "twelve", ipa: "/twelv/", meaning: "十二", sentence: "There are twelve months in a year.", translation: "一年有十二个月。" },
-    ]
+    ],
+    story: "Look, the clock says seven o'clock! It's time to hurry to school! At half past eight, eleven boys and twelve girls play a fun activity. They have thirty minutes. \"Who is next?\" \"No, next is eight o'clock, time for bed!\" Ben goes home, lies in bed, and has a sweet dream.",
+    storyTranslation: "看，时钟指着七点钟！是该赶紧去学校的时间了！在八点半，十一个男孩和十二个女孩进行了一次有趣的活动。他们有三十分钟时间。“下一个是谁？”“不，下一项是八点钟，该上床睡觉了！”本回到了家，躺在床上，做了一个甜美的梦。"
   },
   {
     id: 3,
@@ -85,7 +97,9 @@ export const wordData: Unit[] = [
       { id: "3-24", word: "father", ipa: "/ˈfɑːðə(r)/", meaning: "父亲", sentence: "My father likes playing football.", translation: "我爸爸喜欢踢足球。" },
       { id: "3-25", word: "new", ipa: "/njuː/", meaning: "新的", sentence: "I have a new pair of shoes.", translation: "我有一双新鞋。" },
       { id: "3-26", word: "year", ipa: "/jɪə(r)/", meaning: "年", sentence: "Happy New Year!", translation: "新年快乐！" },
-    ]
+    ],
+    story: "On Sunday, a clever child named Jack has a new plan. \"Maybe I can join a sport club at school,\" he says. His father is forty years old, and his mother is fifty. \"Think about your schoolbag,\" mother says. Every day, Jack spends one hour to pack his books inside. After a family dinner, they watch TV. When it's time to sleep, Jack is happy that this year he can find twenty friends under the stars!",
+    storyTranslation: "在星期日，一个名叫杰克的聪明孩子有了一个新计划。“也许我可以在学校加入一个体育社团，”他说。他的父亲四十岁，他的母亲五十岁。“想一想你的书包，”妈妈说。每天，杰克花一个小时把他的书收拾进去。在温馨的家庭晚饭后，他们一起看电视。到睡觉的时间了，杰克很高兴，因为今年他在星空下能找到二十个好朋友！"
   },
   {
     id: 4,
@@ -102,7 +116,9 @@ export const wordData: Unit[] = [
       { id: "4-9", word: "her", ipa: "/hɜː(r)/", meaning: "她；她的", sentence: "This is her book.", translation: "这是她的书。" },
       { id: "4-10", word: "idea", ipa: "/aɪˈdɪə/", meaning: "主意", sentence: "That's a great idea!", translation: "那是个好主意！" },
       { id: "4-11", word: "eat", ipa: "/iːt/", meaning: "吃", sentence: "I like to eat apples.", translation: "我喜欢吃苹果。" },
-    ]
+    ],
+    story: "Little Sally has a great idea! She loves to eat yummy things, but today she wants to run. \"Can I join your game?\" she asks Lucy. \"Sure! Playing football is just the most fun thing!\" Lucy tells her.",
+    storyTranslation: "小萨莉有一个绝妙的主意！她喜欢吃美味的东西，但今天她想跑跑步。“我能加入你们的游戏吗？”她问露西。“当然可以！踢足球就是最有趣的事情！”露西告诉她。"
   },
   {
     id: 5,
@@ -123,7 +139,9 @@ export const wordData: Unit[] = [
       { id: "5-13", word: "exercise", ipa: "/ˈeksəsaɪz/", meaning: "锻炼，练习", sentence: "I do exercise every morning.", translation: "我每天早上锻炼。" },
       { id: "5-14", word: "clean", ipa: "/kliːn/", meaning: "干净的；打扫", sentence: "Keep your room clean.", translation: "保持房间整洁。" },
       { id: "5-15", word: "arrive", ipa: "/əˈraɪv/", meaning: "到达", sentence: "What time did you arrive?", translation: "你什么时候到的？" },
-    ]
+    ],
+    story: "When we arrive at the gym, we do warm-up exercise. We must follow a rules: we need to clean the room first. Tim is our best runner, but he must not run away. \"Let's take a turn to speak and talk,\" says the teacher. She will give a shiny star to the kid at the top!",
+    storyTranslation: "当我们到达体育馆时，我们做热身锻炼。我们必须遵守规则：我们需要先打扫干净房间。蒂姆是我们最棒的跑手，但他绝对不可以跑开。“让我们轮流来发言和谈话，”老师说。她会把一颗闪亮的星星送给最顶尖的孩子！"
   },
   {
     id: 6,
@@ -148,7 +166,9 @@ export const wordData: Unit[] = [
       { id: "6-17", word: "such", ipa: "/sʌtʃ/", meaning: "非常；这样的", sentence: "It's such a beautiful day!", translation: "真是美好的一天！" },
       { id: "6-18", word: "should", ipa: "/ʃʊd/", meaning: "应该", sentence: "You should go to bed early.", translation: "你应该早点睡觉。" },
       { id: "6-19", word: "some", ipa: "/sʌm/", meaning: "一些", sentence: "Would you like some water?", translation: "你想喝点水吗？" },
-    ]
+    ],
+    story: "On a Monday in April, he went to school under such a soft warm light! Under a plant near the school door, he ate some lunch food. Then, the teacher said: \"Stand in a line, please. Let me lead the way. You should carry out your paper, look at the blackboard, and prepare to draw!\"",
+    storyTranslation: "在四月的一个星期一，他走在上学的路上，头顶洒下如此柔和温暖的光芒！在学校大门旁的一株植物下，他吃了一些午餐饭菜。接下来，老师说：“请排好队。让我来带路。大家应该拿出纸，看着黑板，准备开始画画了！”"
   },
   {
     id: 7,
@@ -169,7 +189,9 @@ export const wordData: Unit[] = [
       { id: "7-13", word: "off", ipa: "/ɒf/", meaning: "关闭", sentence: "Turn off the TV, please.", translation: "请关掉电视。" },
       { id: "7-14", word: "water", ipa: "/ˈwɔːtə(r)/", meaning: "水", sentence: "I need some water.", translation: "我需要一些水。" },
       { id: "7-15", word: "block", ipa: "/blɒk/", meaning: "挡住", sentence: "Don't block the way.", translation: "不要挡路。" },
-    ]
+    ],
+    story: "\"Excuse me, we should be polite,\" says Tim. In a soft voice, he asks, \"Can we go down to the toilet or drink some water?\" \"Sure, Tim! But walk there, knock on the door, and turn off the tap when done,\" says the teacher. \"Sorry, don't block the way! Hold the cup safely and sit down to drink.\"",
+    storyTranslation: "“打扰一下，我们应该有礼貌，”蒂姆说道。他用轻柔的声音问道：“我们可以下去洗手间或者喝点水吗？”“当然可以，蒂姆！但是走着去那里，进门要敲门，用完水后关掉水龙头，”老师说。“抱歉，不要挡路！端稳杯子，坐下来喝水。”"
   },
   {
     id: 8,
@@ -192,6 +214,8 @@ export const wordData: Unit[] = [
       { id: "r-1", word: "litter", ipa: "/ˈlɪtə(r)/", meaning: "乱扔；垃圾", sentence: "Don't litter in the park.", translation: "不要在公园里乱扔垃圾。" },
       { id: "r-2", word: "road", ipa: "/rəʊd/", meaning: "道路", sentence: "Look both ways before crossing the road.", translation: "过马路前要看两边。" },
       { id: "r-3", word: "sign", ipa: "/saɪn/", meaning: "标志", sentence: "Follow the traffic signs.", translation: "遵守交通标志。" },
-    ]
+    ],
+    story: "In our bright classroom, each desk and chair is tidy. Before we use the computer or play the piano, we should close the window and turn off the fan. In the school library, a quiet place, anyone can read books with care. When you go outside on the road, look at the safety sign, and never litter!",
+    storyTranslation: "在我们明亮的教室里，每张书桌和椅子都很整洁。在我们使用电脑或者弹钢琴之前，我们应该关上窗户，关掉电风扇。在学校的图书馆这个安静的地方，任何人都可以认真仔细地看书。当你走到外面马路上时，要看安全标志，千万不要乱扔垃圾！"
   }
 ];
