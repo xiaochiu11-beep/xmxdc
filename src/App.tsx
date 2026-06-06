@@ -532,7 +532,7 @@ export default function App() {
     const regex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
     
     const parts = story.split(regex);
-    if (parts.length === 1) return <span className="inline-block align-middle text-gray-800 font-semibold text-[1.25rem] leading-relaxed select-text py-2">{story}</span>;
+    if (parts.length === 1) return <span className="inline-block align-middle text-gray-800 font-extrabold text-lg sm:text-xl leading-relaxed select-text py-2">{story}</span>;
     
     return parts.map((part, index) => {
       const isMatched = words.some(w => w.word.toLowerCase() === part.toLowerCase());
@@ -545,18 +545,18 @@ export default function App() {
             className="inline-flex flex-col items-center justify-center align-middle mx-1 cursor-pointer transform hover:scale-105 active:scale-95 transition-all select-none"
             title={`点击发音: ${matchWord?.meaning || ''}`}
           >
-            <span className="bg-orange-100 text-orange-700 px-2.5 py-0.5 rounded-xl font-black hover:bg-orange-500 hover:text-white transition-all shadow-sm text-[1.25rem] leading-none mb-0.5">
+            <span className="bg-red-50 text-red-600 border border-red-200/50 hover:bg-red-500 hover:text-white px-2.5 py-0.5 rounded-xl font-extrabold transition-all shadow-sm text-base sm:text-lg lg:text-xl leading-none mb-0.5">
               {part}
             </span>
             {showStoryTranslation && matchWord && (
-              <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-1 py-0.5 rounded border border-orange-200/50 leading-none shadow-sm mt-0.5">
+              <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1 py-0.5 rounded border border-red-200/50 leading-none shadow-sm mt-0.5">
                 {matchWord.meaning}
               </span>
             )}
           </span>
         );
       }
-      return <span key={index} className="inline-block align-middle text-gray-800 font-semibold text-[1.25rem] leading-relaxed select-text py-1">{part}</span>;
+      return <span key={index} className="inline-block align-middle text-gray-800 font-bold text-base sm:text-lg leading-relaxed select-text py-1">{part}</span>;
     });
   };
 
@@ -764,7 +764,7 @@ export default function App() {
   // Learning Mode Logic
   const nextWord = () => {
     const list = isReviewingMistakes ? mistakes : selectedUnit?.words || [];
-    const maxIndex = (!isReviewingMistakes && mode === 'learning' && selectedUnit?.story) ? list.length : list.length - 1;
+    const maxIndex = (!isReviewingMistakes && mode === 'learning' && selectedUnit?.story) ? list.length + 1 : list.length - 1;
     if (currentWordIndex < maxIndex) {
       setCurrentWordIndex(prev => prev + 1);
       setPronunciationFeedback({ text: '', type: null });
@@ -1219,19 +1219,36 @@ export default function App() {
                       返回拓展关卡
                     </button>
                   )}
-                  <span className="bg-[#FFF9F0] text-[#A98467] px-6 py-2 rounded-full font-bold text-lg shadow-sm border border-[#F5EBE0]">
-                    {currentWordIndex === selectedUnit.words.length ? `${selectedUnit.title} - 故事乐园` : selectedUnit.title}
+                  <span className="bg-[#FFF9F0] text-[#A98467] px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-black text-sm sm:text-lg shadow-sm border border-[#F5EBE0]">
+                    {currentWordIndex === selectedUnit.words.length ? (
+                      `${selectedUnit.title} - 故事乐园`
+                    ) : currentWordIndex === selectedUnit.words.length + 1 ? (
+                      `${selectedUnit.title} - 语法魔法盒`
+                    ) : (
+                      selectedUnit.title
+                    )}
                   </span>
                 </div>
-                <div className="flex-1 mx-8 h-4 bg-gray-100 rounded-full overflow-hidden shadow-inner">
+                <div className="flex-1 mx-4 sm:mx-8 h-4 bg-gray-100 rounded-full overflow-hidden shadow-inner">
                   <motion.div 
                     className="bg-gradient-to-r from-[#D4A373] to-[#E6CCB2] h-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${((currentWordIndex + (currentWordIndex === selectedUnit.words.length ? 1 : 1)) / (selectedUnit.story ? selectedUnit.words.length + 1 : selectedUnit.words.length)) * 100}%` }}
+                    animate={{ 
+                      width: `${
+                        ((currentWordIndex + 1) / 
+                        (selectedUnit.story ? selectedUnit.words.length + 2 : selectedUnit.words.length)) * 100
+                      }%` 
+                    }}
                   />
                 </div>
-                <span className="text-gray-400 font-bold text-lg whitespace-nowrap">
-                  {currentWordIndex === selectedUnit.words.length ? "📖 单元故事" : `${currentWordIndex + 1} / ${selectedUnit.words.length}`}
+                <span className="text-gray-400 font-bold text-sm sm:text-lg whitespace-nowrap">
+                  {currentWordIndex === selectedUnit.words.length ? (
+                    "📖 单元故事"
+                  ) : currentWordIndex === selectedUnit.words.length + 1 ? (
+                    "💡 语法魔法盒"
+                  ) : (
+                    `${currentWordIndex + 1} / ${selectedUnit.words.length}`
+                  )}
                 </span>
               </div>
 
@@ -1353,10 +1370,10 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : currentWordIndex === selectedUnit.words.length ? (
                 // --- Story Land Card (Main Page after last word) ---
                 selectedUnit.story && (
-                  <div className="w-full cute-card bg-gradient-to-br from-[#FFF9F0] to-[#F5EBE0] border-4 border-white shadow-xl p-6 relative overflow-hidden" id="unit-story-panel">
+                  <div className="w-full cute-card bg-gradient-to-br from-[#FFF9F0] to-[#F5EBE0] border-4 border-white shadow-xl p-4 sm:p-6 relative overflow-hidden" id="unit-story-panel">
                     {/* Decorative background circle */}
                     <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-200/20 rounded-full blur-2xl pointer-events-none" />
                     <div className="absolute -left-10 -top-10 w-40 h-40 bg-yellow-200/20 rounded-full blur-2xl pointer-events-none" />
@@ -1364,11 +1381,11 @@ export default function App() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-orange-100/60 relative z-10 w-full">
                       <div className="flex items-center gap-3">
                         <span className="text-3xl">📖</span>
-                        <div className="text-left">
-                          <h3 className="text-2xl font-black text-[#A98467] tracking-tight">
+                        <div className="text-left font-black">
+                          <h3 className="text-xl sm:text-2xl font-black text-[#A98467] tracking-tight">
                             单元故事乐园 <span className="text-sm font-semibold text-gray-500 ml-1">Story Land</span>
                           </h3>
-                          <p className="text-xs text-[#D4A373] font-bold mt-0.5">生动有趣的故事，轻松记住单元所有单词！</p>
+                          <p className="text-[11px] sm:text-xs text-[#D4A373] mt-0.5 font-bold">生动有趣的故事，轻松记住单元所有单词！</p>
                         </div>
                       </div>
                       <div className="flex gap-2 w-full sm:w-auto">
@@ -1389,24 +1406,20 @@ export default function App() {
                     </div>
 
                     <div className="relative z-10 w-full text-left flex flex-col gap-6">
-                      <div className="bg-white/80 p-5 sm:p-7 rounded-[24px] border border-[#F5EBE0]/80 shadow-inner flex flex-col gap-5">
+                      <div className="bg-white/85 p-4 sm:p-7 rounded-[24px] border border-[#F5EBE0]/85 shadow-inner flex flex-col gap-5">
                         {getStorySentencePairs(selectedUnit.story, selectedUnit.storyTranslation || '').map((pair, idx) => {
                           return (
                             <div key={idx} className="flex flex-col gap-2 border-b border-dashed border-[#F5EBE0]/40 last:border-0 pb-4 last:pb-0">
-                              <div className="text-lg sm:text-xl text-gray-800 font-bold leading-relaxed">
-                                <span className="inline-flex items-center justify-center bg-[#E6CCB2] text-[#A98467] text-xs font-black w-6 h-6 rounded-full mr-2.5 align-middle shadow-sm">
-                                  {idx + 1}
-                                </span>
+                              <div className="text-lg sm:text-xl text-gray-800 font-extrabold leading-relaxed text-left">
                                 {renderHighlightedStory(pair.english, selectedUnit.words)}
                               </div>
                               {showStoryTranslation && pair.chinese && (
                                 <motion.div 
                                   initial={{ opacity: 0, y: 4 }}
                                   animate={{ opacity: 1, y: 0 }}
-                                  className="pl-8 text-base sm:text-lg text-[#8B5E3C] font-semibold leading-relaxed flex items-center gap-1.5"
+                                  className="text-base sm:text-lg text-red-500 font-bold leading-relaxed text-left pl-1"
                                 >
-                                  <span className="text-orange-400 select-none">✨</span>
-                                  <span>{pair.chinese}</span>
+                                  {pair.chinese}
                                 </motion.div>
                               )}
                             </div>
@@ -1415,46 +1428,15 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Grammar Points / Knowledge Points Box */}
-                    {(() => {
-                      const grammarPoints = selectedUnit.grammarPoints || PREDEFINED_GRAMMAR_POINTS[selectedUnit.id] || [];
-                      if (grammarPoints.length === 0) return null;
-                      return (
-                        <div className="mt-6 w-full text-left relative z-10">
-                          <div className="bg-[#FFF2E0]/70 border-2 border-[#E6CCB2]/50 p-5 sm:p-6 rounded-[24px] shadow-sm">
-                            <h4 className="text-lg font-black text-[#A98467] flex items-center gap-2 mb-4 pb-2 border-b border-orange-100">
-                              <span>🦖</span>
-                              故事语法魔法盒 <span className="text-xs font-bold text-[#D4A373] tracking-widest uppercase ml-1">Grammar Magic Box</span>
-                            </h4>
-                            <div className="flex flex-col gap-4">
-                              {grammarPoints.map((pt, pIdx) => (
-                                <div key={pIdx} className="bg-white/70 p-4 rounded-2xl border border-[#F5EBE0] shadow-sm hover:shadow-md transition-all">
-                                  <div className="flex items-center gap-2 mb-1.5">
-                                    <span className="inline-block bg-orange-100 text-[#D4A373] text-[10px] font-black px-2 py-0.5 rounded-lg whitespace-nowrap">
-                                      知识点 {pIdx + 1}
-                                    </span>
-                                    <span className="text-[#8B5E3C] font-black text-base sm:text-lg">{pt.title}</span>
-                                  </div>
-                                  <p className="text-sm sm:text-base text-gray-600 font-medium pl-1 leading-relaxed">
-                                    {pt.desc}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
                     {/* Legend of highlighted words */}
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-500 border-t border-dashed border-[#F5EBE0] pt-4 w-full">
-                      <span className="font-bold text-gray-400 self-center">故事单词速查 (点击发音)：</span>
-                      <div className="flex flex-wrap gap-2">
+                    <div className="mt-4 flex flex-col gap-2 text-xs text-gray-500 border-t border-dashed border-[#F5EBE0] pt-4 w-full">
+                      <span className="font-bold text-gray-400 self-start">故事单词速查 (点击发音，红色字体)：</span>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
                         {selectedUnit.words.map((w) => (
                           <button 
                             key={w.id} 
                             onClick={() => speak(w.word)}
-                            className="bg-white hover:bg-orange-50 text-[#A98467] px-2.5 py-1 rounded-lg border border-[#F5EBE0] cursor-pointer transition-all hover:scale-105 shadow-sm active:scale-95 flex items-center gap-1 text-xs font-bold"
+                            className="bg-white hover:bg-red-50 text-red-600 px-2.5 py-1 rounded-lg border border-red-100 hover:border-red-300 cursor-pointer transition-all hover:scale-105 shadow-sm active:scale-95 flex items-center gap-1 text-xs font-bold"
                           >
                             <span>{w.word}</span>
                             <span className="text-[10px] text-gray-400 font-normal">({w.meaning})</span>
@@ -1464,27 +1446,77 @@ export default function App() {
                     </div>
                   </div>
                 )
+              ) : (
+                // --- Grammar Land Card (Separate Page) ---
+                (() => {
+                  const grammarPoints = selectedUnit.grammarPoints || PREDEFINED_GRAMMAR_POINTS[selectedUnit.id] || [];
+                  return (
+                    <div className="w-full cute-card bg-gradient-to-br from-[#FFF9F5] to-[#FDF4E7] border-4 border-white shadow-xl p-4 sm:p-7 relative overflow-hidden" id="unit-grammar-panel">
+                      {/* Decorative background shape */}
+                      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-orange-300/10 rounded-full blur-2xl pointer-events-none" />
+                      <div className="absolute -left-12 -top-12 w-48 h-48 bg-red-300/10 rounded-full blur-2xl pointer-events-none" />
+
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-orange-100/60 relative z-10 w-full">
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl">🪄</span>
+                          <div className="text-left">
+                            <h3 className="text-2xl font-black text-[#A98467] tracking-tight">
+                              故事语法魔法盒 <span className="text-sm font-semibold text-gray-500 ml-1">Grammar Magic Box</span>
+                            </h3>
+                            <p className="text-xs text-[#D4A373] font-bold mt-0.5">轻松掌握故事里的精彩语法，变成英语小达人！</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-4 relative z-10 w-full text-left">
+                        {grammarPoints.length === 0 ? (
+                          <div className="bg-white/80 p-6 rounded-[24px] border border-[#F5EBE0] shadow-sm text-center font-bold text-gray-500">
+                            本单元的故事词汇和句型简单实用，继续加油哦！🚀
+                          </div>
+                        ) : (
+                          grammarPoints.map((pt, pIdx) => (
+                            <div key={pIdx} className="bg-white/85 p-4 sm:p-5 rounded-2xl border border-[#F5EBE0] shadow-sm hover:shadow-md hover:border-orange-200/50 transition-all flex flex-col gap-1.5">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="inline-block bg-orange-100 text-[#D4A373] text-[10px] font-black px-2 py-0.5 rounded-lg whitespace-nowrap">
+                                  魔法点 {pIdx + 1}
+                                </span>
+                                <span className="text-[#8B5E3C] font-black text-base sm:text-lg">{pt.title}</span>
+                              </div>
+                              <p className="text-sm sm:text-base text-gray-600 font-bold pl-1 leading-relaxed">
+                                {pt.desc}
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()
               )}
 
               <div className="flex gap-4 mt-8 w-full max-w-sm">
                 <button 
                   onClick={prevWord}
                   disabled={currentWordIndex === 0}
-                  className={`flex-1 cute-button flex items-center justify-center gap-2 text-xl ${currentWordIndex === 0 ? 'bg-gray-300' : 'bg-[#D4A373] hover:bg-[#A98467] text-white'}`}
+                  className={`flex-1 cute-button flex items-center justify-center gap-2 text-lg sm:text-xl ${currentWordIndex === 0 ? 'bg-gray-300' : 'bg-[#D4A373] hover:bg-[#A98467] text-white'}`}
                 >
-                  <ChevronLeft size={28} />
+                  <ChevronLeft size={24} />
                   上一个
                 </button>
                 <button 
                   onClick={nextWord}
-                  className="flex-1 cute-button flex items-center justify-center gap-2 text-xl bg-[#E6CCB2] hover:bg-[#D4A373] text-white"
+                  className="flex-1 cute-button flex items-center justify-center gap-2 text-lg sm:text-xl bg-[#E6CCB2] hover:bg-[#D4A373] text-white"
                 >
-                  {currentWordIndex === selectedUnit.words.length ? (
+                  {currentWordIndex === selectedUnit.words.length - 1 && selectedUnit.story ? (
+                    <span className="flex items-center gap-1">故事乐园 📖</span>
+                  ) : currentWordIndex === selectedUnit.words.length ? (
+                    <span className="flex items-center gap-1">语法魔法盒 🪄</span>
+                  ) : currentWordIndex === selectedUnit.words.length + 1 ? (
                     <span>完成学习 🎉</span>
                   ) : (
                     <>
                       <span>下一个</span>
-                      <ChevronRight size={28} />
+                      <ChevronRight size={24} />
                     </>
                   )}
                 </button>

@@ -40,7 +40,7 @@ export const wordData: Unit[] = [
       { id: "1-12", word: "Saturday", ipa: "/ˈsætədeɪ/", meaning: "星期六", sentence: "I go to the library every Saturday.", translation: "我每个星期六都去图书馆。" },
       { id: "1-13", word: "today", ipa: "/təˈdeɪ/", meaning: "今天", sentence: "Today is a sunny day.", translation: "今天是个晴天。" },
     ],
-    story: "Today is Saturday! Lily wears a cute pink dress. She runs to the table for breakfast. Oh! Don't forget to wash hands and brush every tooth! \"Hurry up, a quick dog is waiting! Let's go to the park, we won't be late! After that, we can play!\"",
+    story: "Today is Saturday! Lily wears a cute pink dress. She runs to the table for breakfast. Oh! Don't forget to wash your hands and brush every tooth! \"Hurry up, a quick dog is waiting! Let's go to the park, we won't be late! After that, we can play!\"",
     storyTranslation: "今天是星期六！莉莉穿着一件可爱的粉色连衣裙。她跑到桌子旁吃早餐。噢！别忘了洗手，刷干净每一颗牙齿！“快点，一只跑得很快的小狗正等着呢！我们去公园吧，不会迟到的！在那之后我们还可以玩耍！”"
   },
   {
@@ -64,7 +64,7 @@ export const wordData: Unit[] = [
       { id: "2-15", word: "eleven", ipa: "/ɪˈlevn/", meaning: "十一", sentence: "My brother is eleven years old.", translation: "我哥哥十一岁了。" },
       { id: "2-16", word: "twelve", ipa: "/twelv/", meaning: "十二", sentence: "There are twelve months in a year.", translation: "一年有十二个月。" },
     ],
-    story: "Look, the clock says seven o'clock! It's time to hurry to school! At half past eight, eleven boys and twelve girls play a fun activity. They have thirty minutes. \"Who is next?\" \"No, next is eight o'clock, time for bed!\" Ben goes home, lies in bed, and has a sweet dream.",
+    story: "Look, the clock says seven o'clock! It's time to hurry to school! At half past eight, eleven boys and twelve girls do a fun activity. They have thirty minutes. \"Who is next?\" \"No, next is eight o'clock, time for bed!\" Ben goes home, lies in bed, and has a sweet dream.",
     storyTranslation: "看，时钟指着七点钟！是该赶紧去学校的时间了！在八点半，十一个男孩和十二个女孩进行了一次有趣的活动。他们有三十分钟时间。“下一个是谁？”“不，下一项是八点钟，该上床睡觉了！”本回到了家，躺在床上，做了一个甜美的梦。"
   },
   {
@@ -98,7 +98,7 @@ export const wordData: Unit[] = [
       { id: "3-25", word: "new", ipa: "/njuː/", meaning: "新的", sentence: "I have a new pair of shoes.", translation: "我有一双新鞋。" },
       { id: "3-26", word: "year", ipa: "/jɪə(r)/", meaning: "年", sentence: "Happy New Year!", translation: "新年快乐！" },
     ],
-    story: "On Sunday, a clever child named Jack has a new plan. \"Maybe I can join a sport club at school,\" he says. His father is forty years old, and his mother is fifty. \"Think about your schoolbag,\" mother says. Every day, Jack spends one hour to pack his books inside. After a family dinner, they watch TV. When it's time to sleep, Jack is happy that this year he can find twenty friends under the stars!",
+    story: "On Sunday, a clever child named Jack has a new plan. \"Maybe I can join a sport club at school,\" he says. His father is forty years old, and his mother is fifty. \"Think about your schoolbag,\" mother says. Every day, Jack spends one hour packing his books inside. After a family dinner, they watch TV. When it's time to sleep, Jack is happy that this year he can find twenty friends under the stars!",
     storyTranslation: "在星期日，一个名叫杰克的聪明孩子有了一个新计划。“也许我可以在学校加入一个体育社团，”他说。他的父亲四十岁，他的母亲五十岁。“想一想你的书包，”妈妈说。每天，杰克花一个小时把他的书收拾进去。在温馨的家庭晚饭后，他们一起看电视。到睡觉的时间了，杰克很高兴，因为今年他在星空下能找到二十个好朋友！"
   },
   {
@@ -140,7 +140,7 @@ export const wordData: Unit[] = [
       { id: "5-14", word: "clean", ipa: "/kliːn/", meaning: "干净的；打扫", sentence: "Keep your room clean.", translation: "保持房间整洁。" },
       { id: "5-15", word: "arrive", ipa: "/əˈraɪv/", meaning: "到达", sentence: "What time did you arrive?", translation: "你什么时候到的？" },
     ],
-    story: "When we arrive at the gym, we do warm-up exercise. We must follow a rules: we need to clean the room first. Tim is our best runner, but he must not run away. \"Let's take a turn to speak and talk,\" says the teacher. She will give a shiny star to the kid at the top!",
+    story: "When we arrive at the gym, we do warm-up exercise. We must follow each rule: we need to clean the room first. Tim is our best runner, but he must not run away. \"Let's take a turn to speak and talk,\" says the teacher. She will give a shiny star to the kid at the top!",
     storyTranslation: "当我们到达体育馆时，我们做热身锻炼。我们必须遵守规则：我们需要先打扫干净房间。蒂姆是我们最棒的跑手，但他绝对不可以跑开。“让我们轮流来发言和谈话，”老师说。她会把一颗闪亮的星星送给最顶尖的孩子！"
   },
   {
